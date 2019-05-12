@@ -1,0 +1,19 @@
+{
+    "name": "blankogmbh/kirby-oauth",
+    "description": "Kirby OAuth 2 Plugin",
+    "type": "kirby-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Markus Denhoff",
+            "email": "denhoff@blanko.de"
+        }
+    ],
+    "require": {
+        "getkirby/composer-installer": "^1.1",
+        "league/oauth2-client": "^2.4"
+    },
+    "extra": {
+        "installer-name": "oauth"
+    }
+}
