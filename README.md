@@ -96,4 +96,14 @@ Additionally the two properties `name` and `class` are supported to supply a dis
 
 ### Configure Allowed Users
 
-*TODO: Describe configuration options
+By default only whitelisted users are allowed to login into the Kirby panel.
+
+**Domain Whitelist:** By adding domains to the domain whitelist (`domainWhitelist`) all accounts with a verified email address at one of the domains are permitted.
+
+**Email Whitelist:** By adding email addresses to the email whitelist (`emailWhitelist`) all accounts with a verified email address matching one of the entires are permitted.
+
+**Allow Everyone:** By setting `allowEveryone` to `true` all authenticated accounts are able to login. *Please use this option with care!* You probably want to change the default user role to a more restricted one then the default `admin`.
+
+**Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `admin`. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually whitelist users by changing the role in the Kirby panel.
+
+**Only Existing User:** By setting `onlyExistingUsers` to true only created uses are able to login with an OAuth provider, no new users are created.
