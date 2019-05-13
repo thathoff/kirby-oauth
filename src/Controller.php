@@ -161,6 +161,7 @@ class Controller
                 $this->error("Access denied for $email.");
             }
 
+            $this->kirby->impersonate('kirby');
             $kirbyUser = $this->kirby->users()->create([
                 'name'  => $name,
                 'email' => $email,
