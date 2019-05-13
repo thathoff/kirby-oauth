@@ -7,6 +7,7 @@ class Provider
     private $name = null;
     private $id = null;
     private $provider = null;
+    private $state = null;
     public $data = [];
 
     public function __construct($id, array $config)
@@ -15,12 +16,28 @@ class Provider
         $this->name = !empty($config['name']) ? $config['name'] : ucwords($this->id);
         unset($config['name']);
 
+        $this->state = !empty($config['state']) ? $config['state'] : null;
+        unset($config['state']);
+
         $class = "League\OAuth2\Client\Provider\GenericProvider";
         if (!empty($config['class']) && class_exists($config['class'])) {
             $class = $config['class'];
         }
 
         $this->provider = new $class($config);
+    }
+
+    public function getAuthorizationUrl($options = null)
+    {
+        if (!is_array($options)) {
+            $options  = [];
+        }
+
+        if (!isset($options['state']) && $this->state) {
+            $options['state'] = $this->state;
+        }
+
+        return $this->__call("getAuthorizationUrl", [$options]);
     }
 
     public function getName()
