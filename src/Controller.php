@@ -90,7 +90,7 @@ class Controller
 
         try {
             $token = $provider->getAccessToken('authorization_code', [
-                'code' => get('code'),
+                'code' => $code,
             ]);
 
             // We got an access token, let's now get the owner details
