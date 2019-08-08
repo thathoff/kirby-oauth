@@ -8,6 +8,7 @@ class Provider
     private $id = null;
     private $provider = null;
     private $state = null;
+    private $getAuthorizationUrlOptions = null;
     public $data = [];
 
     public function __construct($id, array $config)
@@ -24,11 +25,18 @@ class Provider
             $class = $config['class'];
         }
 
+        $this->getAuthorizationUrlOptions = !empty($config['getAuthorizationUrlOptions']) ? $config['getAuthorizationUrlOptions'] : null;
+        unset($config['getAuthorizationUrlOptions']);
+
         $this->provider = new $class($config);
     }
 
     public function getAuthorizationUrl($options = null)
     {
+        if (!is_array($options)) {
+            $options = $this->getAuthorizationUrlOptions;
+        }
+        
         if (!is_array($options)) {
             $options  = [];
         }
