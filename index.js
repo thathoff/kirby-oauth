@@ -3,7 +3,7 @@ if (window.panel) {
   var url = window.location + "";
 
   // override to login screen
-  if (url.indexOf(window.panel.url) === 0) {
+  if (url.indexOf(window.panel.url + "/login") === 0) {
     var settings = null;
     var providersHtml = null;
     var tryCounter = 0;
