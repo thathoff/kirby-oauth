@@ -21,13 +21,13 @@ class Controller
         $this->kirby = kirby();
         $this->session = $this->kirby->session();
         $this->providers = new ProvidersManager($this->kirby);
-
-        if ($this->kirby->user()) {
-            $this->goToPanel();
-        }
     }
 
     public function index() {
+        if ($this->kirby->user()) {
+            $this->goToPanel();
+        }
+
         $error = $this->session->get('oauthError');
         $this->session->remove('oauthError');
 
@@ -61,7 +61,7 @@ class Controller
         ];
     }
 
-    public function login($provider)
+    public function login($provider = null)
     {
         if (!$provider = $this->providers->get($provider)) {
             $this->error("Oauth Provider not found!");
@@ -80,6 +80,11 @@ class Controller
             // Redirect the user to the authorization URL.
             header('Location: ' . $authorizationUrl);
             exit;
+        }
+
+        // we already have a user just to to panel
+        if ($this->kirby->user()) {
+            $this->goToPanel();
         }
 
         // State is invalid, possible CSRF attack in progress
