@@ -1,6 +1,6 @@
 # Kirby OAuth 2 Plugin
 
-This plugin is an interface to use  [OAuth 2.0](http://oauth.net/2/) providers for user authentication in [Kirby 3](https://getkirby.com). It uses the [PHP League’s OAuth 2 Client](https://oauth2-client.thephpleague.com/), so all [official](https://oauth2-client.thephpleague.com/providers/league/) and [third-party providers](https://oauth2-client.thephpleague.com/providers/thirdparty/) are supported. It’s event possible to [implement your own](https://oauth2-client.thephpleague.com/providers/implementing/).
+This plugin is an interface to use  [OAuth 2.0](http://oauth.net/2/) providers for user authentication in [Kirby 3](https://getkirby.com). It uses the [PHP League’s OAuth 2 Client](https://oauth2-client.thephpleague.com/), so all [official](https://oauth2-client.thephpleague.com/providers/league/) and [third-party providers](https://oauth2-client.thephpleague.com/providers/thirdparty/) are supported. It’s even possible to [implement your own](https://oauth2-client.thephpleague.com/providers/implementing/).
 
 ---
 
