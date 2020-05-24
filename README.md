@@ -10,7 +10,7 @@ Because of secondary dependencies for providers, installation via composer is th
 
 ### Install the Plugin
 ```
-composer require blankogmbh/kirby-oauth
+composer require thathoff/kirby-oauth
 ```
 
 ### Install a Provider
@@ -33,7 +33,7 @@ The following configuration options are available. And can be added to the Kirby
 return [
   //... other config options
 
-  'blankogmbh' => [
+  'thathoff' => [
       'oauth' => [
         // Add your providers configuration here
         'providers' => [
@@ -70,7 +70,7 @@ return [
 
 ### Provider Options
 
-The `blankogmbh.oauth.providers` array is a list of all configured OAuth Providers with a unique key for each entry. Each array entry is used as the configuration option to a new OAauth Provider Class instance so all options which are documented for the selected OAuth Provider class are available.
+The `thathoff.oauth.providers` array is a list of all configured OAuth Providers with a unique key for each entry. Each array entry is used as the configuration option to a new OAauth Provider Class instance so all options which are documented for the selected OAuth Provider class are available.
 
 Additionally the two properties `name` and `class` are supported to supply a display name for the login screen and the Provider class to use when you don’t want to use the `GenericProvider`.
 

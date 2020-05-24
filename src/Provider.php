@@ -1,6 +1,6 @@
 <?php
 
-namespace Blankogmbh\Oauth;
+namespace Thathoff\Oauth;
 
 class Provider
 {
@@ -36,7 +36,7 @@ class Provider
         if (!is_array($options)) {
             $options = $this->getAuthorizationUrlOptions;
         }
-        
+
         if (!is_array($options)) {
             $options  = [];
         }

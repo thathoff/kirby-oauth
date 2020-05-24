@@ -1,6 +1,6 @@
 <?php
 
-namespace Blankogmbh\Oauth;
+namespace Thathoff\Oauth;
 
 use Kirby\Cms\Panel;
 use Kirby\Cms\Response;
@@ -56,7 +56,7 @@ class Controller
     public function settings()
     {
         return [
-            'onlyOauth' => $this->kirby->option('blankogmbh.oauth.onlyOauth', false),
+            'onlyOauth' => $this->kirby->option('thathoff.oauth.onlyOauth', false),
             'enabled' => count($this->providers) > 0,
         ];
     }
@@ -156,7 +156,7 @@ class Controller
         }
 
         if (!$kirbyUser = $this->kirby->user($email)) {
-            $onlyExistingUsers = $this->kirby->option('blankogmbh.oauth.onlyExistingUsers', false);
+            $onlyExistingUsers = $this->kirby->option('thathoff.oauth.onlyExistingUsers', false);
 
             if ($onlyExistingUsers) {
                 $this->error("User missing and creating users is disabled!");
@@ -170,7 +170,7 @@ class Controller
             $kirbyUser = $this->kirby->users()->create([
                 'name'  => $name,
                 'email' => $email,
-                'role'  => $this->kirby->option('blankogmbh.oauth.defaultRole', 'admin'),
+                'role'  => $this->kirby->option('thathoff.oauth.defaultRole', 'admin'),
             ]);
         }
 
@@ -180,9 +180,9 @@ class Controller
 
     private function checkWhiteLists($email)
     {
-        $domainWhitelist = $this->kirby->option('blankogmbh.oauth.domainWhitelist', []);
-        $emailWhitelist = $this->kirby->option('blankogmbh.oauth.emailWhitelist', []);
-        $allowEveryone = $this->kirby->option('blankogmbh.oauth.allowEveryone', false);
+        $domainWhitelist = $this->kirby->option('thathoff.oauth.domainWhitelist', []);
+        $emailWhitelist = $this->kirby->option('thathoff.oauth.emailWhitelist', []);
+        $allowEveryone = $this->kirby->option('thathoff.oauth.allowEveryone', false);
 
         if ($allowEveryone) {
             return true;

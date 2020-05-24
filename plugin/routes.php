@@ -1,6 +1,6 @@
 <?php
 
-namespace Blankogmbh\Oauth;
+namespace Thathoff\Oauth;
 
 return [
     [
