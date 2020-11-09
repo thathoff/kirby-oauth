@@ -9,3 +9,7 @@
 
 # Composer files
 /vendor
+
+# .lock files
+composer.lock
+yarn.lock
