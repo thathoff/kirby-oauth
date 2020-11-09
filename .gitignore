@@ -4,6 +4,8 @@
 # npm modules
 /node_modules
 
+# Parcel cache folder
+.cache
+
 # Composer files
 /vendor
-composer.lock

@@ -2,12 +2,8 @@
 
 namespace Thathoff\Oauth;
 
-use Kirby\Cms\Panel;
-use Kirby\Cms\Response;
 use Kirby\Http\Header;
 use Kirby\Http\Uri;
-use Kirby\Toolkit\F;
-use Kirby\Toolkit\View;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 
 class Controller
@@ -23,34 +19,19 @@ class Controller
         $this->providers = new ProvidersManager($this->kirby);
     }
 
-    public function index() {
-        if ($this->kirby->user()) {
-            $this->goToPanel();
-        }
-
-        $error = $this->session->get('oauthError');
-        $this->session->remove('oauthError');
-
-        return self::view("index", [
-            'icons'     => F::read($this->kirby->root('panel') . '/dist/img/icons.svg'),
-            'assetUrl'  => $this->kirby->url('media') . '/panel/' . md5($this->kirby->version()),
-            'config'    => $this->kirby->option('panel'),
-            'providers' => $this->providers,
-            'error'     => $error,
-            'baseUrl'   => new Uri('oauth/login'),
-        ]);
-    }
-
     public function providers()
     {
-        $error = $this->session->get('oauthError');
-        $this->session->remove('oauthError');
-
-        return self::view("providers", [
-            'providers' => $this->providers,
-            'baseUrl'   => new Uri('oauth/login'),
-            'error'     => $error,
-        ]);
+        return $this->providers->count() > 0 ?
+            $this->providers->toArray(
+                function ($provider) {
+                    return [
+                        'id'   => $provider->getId(),
+                        'name' => $provider->getName(),
+                        'href' => new Uri('oauth/login') . '/' . $provider->getId(),
+                    ];
+                }
+            )
+            : [];
     }
 
     public function settings()
@@ -82,7 +63,7 @@ class Controller
             exit;
         }
 
-        // we already have a user just to to panel
+        // we already have a user just go to panel
         if ($this->kirby->user()) {
             $this->goToPanel();
         }
@@ -111,16 +92,20 @@ class Controller
         $this->error();
     }
 
-    public static function view($name, $vars = null)
+    public function oauthError()
     {
-        $view = new View(__dir__ . '/../views/' . $name . '.php', $vars);
-        return new Response($view->render());
+        $error = $this->session->get('oauthError');
+        $this->session->remove('oauthError');
+
+        return [
+            'msg' => $error
+        ];
     }
 
     public static function handle($options)
     {
         $options = explode("/", trim($options, "/"));
-        $method = "index";
+        $method = null;
 
         if (!empty($options[0])) {
             $method = array_shift($options);
@@ -128,9 +113,7 @@ class Controller
 
         $instance = new Controller();
         if (method_exists($instance, $method)) {
-            if ($result = call_user_func_array([$instance, $method], $options)) {
-                return $result;
-            }
+            return call_user_func_array([$instance, $method], $options);
         }
 
         Header::notfound();
@@ -143,12 +126,12 @@ class Controller
 
         $vars = ['name', 'email', 'email_verified', 'hd'];
 
-        foreach($vars as $var) {
+        foreach ($vars as $var) {
             $$var = isset($oauthUserData[$var]) ? $oauthUserData[$var] : null;
         }
 
         if (!$email) {
-            $this->error("E-mail address missing missing!");
+            $this->error("E-mail address missing!");
         }
 
         if ($email_verified === false) {
@@ -203,7 +186,7 @@ class Controller
     private function error($message = null)
     {
         $this->session->set("oauthError", $message);
-        go("oauth");
+        go("panel/login");
     }
 
     private function goToPanel()
