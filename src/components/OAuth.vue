@@ -1,57 +1,63 @@
 <template>
-  <div>
+  <div class="thathoff-oauth-providers">
     <div
       v-if="error !== null"
-      class="k-error-details"
-      style="margin-bottom: 2em;"
+      class="k-login-alert k-login-alert--oauth"
+      @click="error = null"
     >
-      <dl>
-        <dt>{{ error }}</dt>
-      </dl>
+      <span>{{ error }}</span>
+      <k-icon type="alert" />
     </div>
-
-    <header class="k-field-header">
-      <div class="k-field-label">Sign in with</div>
-    </header>
-
-    <ul class="k-list k-draggable" data-size="auto">
-      <li
-        v-for="provider in providers"
-        :key="provider.id"
-        :id="`thathoff-oauth-${provider.id}`"
-        class="k-list-item"
-      >
-        <a class="k-link k-list-item-content" :href="provider.href">
-          <div class="k-list-item-text">{{ provider.name }}</div>
-        </a>
-        <nav class="k-list-item-options">
-          <a :href="provider.href" class="k-button">
-            <span aria-hidden="true" class="k-button-icon k-icon k-icon-check">
-              <svg
-                xmlns:xlink="http://www.w3.org/1999/xlink"
-                viewBox="0 0 16 16"
-              >
-                <use xlink:href="#icon-check"></use>
-              </svg>
-            </span>
-          </a>
-        </nav>
-      </li>
-    </ul>
+    <k-field name="oauth" label="Sign in with">
+      <k-list :items="providersForList" />
+    </k-field>
   </div>
 </template>
 
 <script>
 export default {
+  name: "OAuth",
+
   props: {
     providers: {
       type: Array,
-      default: []
+      default() {
+        return [];
+      }
     },
     error: {
       type: String,
       default: null
     }
+  },
+
+  computed: {
+    providersForList() {
+      return this.providers.map(provider => ({
+        id: provider.id,
+        class: `thathoff-oauth-provider-${provider.id}`,
+        text: provider.name,
+        link: provider.href,
+        target: "_self",
+        flag: {
+          icon: "check",
+          link: provider.href,
+          target: "_self"
+        }
+      }));
+    }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.thathoff-oauth-providers {
+  padding-top: 1rem;
+}
+
+.k-login-alert {
+  &--oauth {
+    margin-bottom: 1rem;
+  }
+}
+</style>
