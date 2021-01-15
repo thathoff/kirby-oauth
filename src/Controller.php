@@ -168,9 +168,10 @@ class Controller
 
             $this->kirby->impersonate('kirby');
             $kirbyUser = $this->kirby->users()->create([
-                'name'  => $name,
-                'email' => $email,
-                'role'  => $this->kirby->option('thathoff.oauth.defaultRole', 'admin'),
+                'name'      => $name,
+                'password'  => bin2hex(random_bytes(32)),
+                'email'     => $email,
+                'role'      => $this->kirby->option('thathoff.oauth.defaultRole', 'admin'),
             ]);
         }
 
