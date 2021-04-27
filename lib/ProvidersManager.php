@@ -18,9 +18,9 @@ class ProvidersManager extends Collection
             return;
         }
 
-        foreach($providers as $id => $provider) {
+        foreach ($providers as $id => $provider) {
             if (empty($provider['redirectUri'])) {
-                $provider['redirectUri'] = (string)$kirby->request()->url();
+                $provider['redirectUri'] = kirby()->request()->url()->base() . '/' . kirby()->request()->path()->toString();
             }
 
             $this->set($id, new Provider($id, $provider));
