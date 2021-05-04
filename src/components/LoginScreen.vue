@@ -1,6 +1,6 @@
 <template>
   <div>
-    <k-login-form
+    <k-login
       v-if="settings.enabled === false || settings.onlyOauth === false"
     />
     <OAuth
@@ -16,7 +16,6 @@ import OAuth from "./OAuth";
 
 export default {
   components: {
-    "k-login-form": null, // will be defined via Vue.use (see index.js)
     OAuth
   },
   data() {
