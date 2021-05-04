@@ -1,6 +1,6 @@
 <template>
   <div>
-    <k-login-form
+    <k-login
       v-if="settings.enabled === false || settings.onlyOauth === false"
     />
     <OAuth
@@ -16,25 +16,25 @@ import OAuth from "./OAuth";
 
 export default {
   components: {
-    "k-login-form": null, // will be defined via Vue.use (see index.js)
     OAuth
   },
   data() {
     return {
       settings: {},
-      providers: [],
       error: null
     };
   },
   created() {
     this.load();
   },
+  computed: {
+    providers () {
+      return Object.values(this.settings.providers)
+    }
+  },
   methods: {
     async load() {
       this.settings = await this.$api.get("oauth/settings");
-      this.providers = Object.values(
-        await this.$api.get("oauth/providers")
-      );
       this.error = (await this.$api.get("oauth/oauthError")).msg;
     }
   }

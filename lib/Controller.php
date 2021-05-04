@@ -19,7 +19,7 @@ class Controller
         $this->providers = new ProvidersManager($this->kirby);
     }
 
-    public function providers()
+    private function providers()
     {
         return $this->providers->count() > 0 ?
             $this->providers->toArray(
@@ -39,6 +39,7 @@ class Controller
         return [
             'onlyOauth' => $this->kirby->option('thathoff.oauth.onlyOauth', false),
             'enabled' => count($this->providers) > 0,
+            'providers' => $this->providers(),
         ];
     }
 
@@ -125,7 +126,7 @@ class Controller
         $oauthUserData = $oauthUser->toArray();
 
         $vars = ['name', 'email', 'email_verified', 'hd'];
-        
+
         //Azure Active Directory doesn't use "email" for email address, but "upn" for User Principal Name, and the email is always verified in Azure AD tenant
         if(isset($oauthUserData["upn"])) {
             $email = $oauthUserData["upn"];
