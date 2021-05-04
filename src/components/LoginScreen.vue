@@ -21,19 +21,20 @@ export default {
   data() {
     return {
       settings: {},
-      providers: [],
       error: null
     };
   },
   created() {
     this.load();
   },
+  computed: {
+    providers () {
+      return Object.values(this.settings.providers)
+    }
+  },
   methods: {
     async load() {
       this.settings = await this.$api.get("oauth/settings");
-      this.providers = Object.values(
-        await this.$api.get("oauth/providers")
-      );
       this.error = (await this.$api.get("oauth/oauthError")).msg;
     }
   }
