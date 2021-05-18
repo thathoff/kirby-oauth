@@ -3,7 +3,12 @@ import 'regenerator-runtime/runtime'
 import LoginScreen from "./components/LoginScreen";
 
 panel.plugin("thathoff/oauth", {
-  created: () => {
+  created: async () => {
+    const settings = await panel.app.$api.get("oauth/settings")
+    if (!settings.enabled) {
+      return
+    }
+
     // always route back to panel home when trying to access installation view
     if (panel?.app?.$route?.path === "/installation") {
       panel.app.$go("/");
