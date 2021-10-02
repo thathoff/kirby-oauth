@@ -9,7 +9,7 @@
       <k-icon type="alert" />
     </div>
     <k-field name="oauth" label="Sign in with">
-      <k-list :items="providersForList" />
+      <k-items layout="list" :items="providersForList" />
     </k-field>
   </div>
 </template>
@@ -39,11 +39,7 @@ export default {
         text: provider.name,
         link: provider.href,
         target: "_self",
-        flag: {
-          icon: "check",
-          link: provider.href,
-          target: "_self"
-        }
+        options: [{icon: 'angle-right'}]
       }));
     }
   }

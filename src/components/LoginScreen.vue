@@ -1,6 +1,7 @@
 <template>
   <div>
     <k-login
+      :methods="methods"
       v-if="settings.enabled === false || settings.onlyOauth === false"
     />
     <OAuth
@@ -17,6 +18,10 @@ import OAuth from "./OAuth";
 export default {
   components: {
     OAuth
+  },
+  props: {
+    methods: Array,
+    pending: Object
   },
   data() {
     return {
