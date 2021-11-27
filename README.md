@@ -45,7 +45,7 @@ return [
         // Only allow logins for existing kirby users (don’t create new users)
         'onlyExistingUsers' => false,
 
-         // Set the default role of newly created users.
+        // Set the default role of newly created users.
         'defaultRole' => 'admin',
 
         // Allow every valid user of all OAuth providers to login.
@@ -65,6 +65,10 @@ return [
 
         // Remove the standard Kirby login form and only display OAuth options.
         'onlyOauth' => false,
+
+        // After succesful login, the user will be redirected to this page.
+        // Useful if you want to use OAuth for internal/non-public pages.
+        'target' => 'panel',
       ],
   ],
 ];

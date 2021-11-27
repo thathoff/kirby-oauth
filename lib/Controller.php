@@ -66,7 +66,7 @@ class Controller
 
         // we already have a user just go to panel
         if ($this->kirby->user()) {
-            $this->goToPanel();
+            $this->goToTarget();
         }
 
         // State is invalid, possible CSRF attack in progress
@@ -166,7 +166,7 @@ class Controller
         }
 
         $kirbyUser->loginPasswordless();
-        $this->goToPanel();
+        $this->goToTarget();
     }
 
     private function checkWhiteLists($email)
@@ -197,8 +197,9 @@ class Controller
         go("panel/login");
     }
 
-    private function goToPanel()
+    private function goToTarget()
     {
-        go("panel");
+        $target = $this->kirby->option('thathoff.oauth.target', 'panel');
+        go($target);
     }
 }
