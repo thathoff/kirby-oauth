@@ -127,14 +127,14 @@ class Controller
 
         $vars = ['name', 'email', 'email_verified', 'hd'];
 
+        foreach ($vars as $var) {
+            $$var = isset($oauthUserData[$var]) ? $oauthUserData[$var] : null;
+        }
+
         //Azure Active Directory doesn't use "email" for email address, but "upn" for User Principal Name, and the email is always verified in Azure AD tenant
         if(isset($oauthUserData["upn"])) {
             $email = $oauthUserData["upn"];
             $email_verified = true;
-        }
-
-        foreach ($vars as $var) {
-            $$var = isset($oauthUserData[$var]) ? $oauthUserData[$var] : null;
         }
 
         if (!$email) {
