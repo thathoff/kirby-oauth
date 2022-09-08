@@ -96,6 +96,13 @@ Additionally the two properties `name` and `class` are supported to supply a dis
   ],
 ```
 
+### Redirect URL
+
+OAuth providers require you to supply a **redirect URL** when configuring an application.
+Please use `https://example.com/oauth/login/PROVIDER_ID` where example.com is your domain and PROVIDER_ID is the key
+of the config option in config.php (in the previous config example `google` or `custom`). If you have
+installed Kirby in a subdirectory, remember to include the subdirectory in the URL.
+
 ### Configure Allowed Users
 
 By default only whitelisted users are allowed to login into the Kirby panel.
