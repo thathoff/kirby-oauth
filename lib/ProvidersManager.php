@@ -7,7 +7,6 @@ use Kirby\Toolkit\Collection;
 class ProvidersManager extends Collection
 {
     private $kirby = null;
-    public array $data = [];
 
     public function __construct(\Kirby\Cms\App $kirby)
     {
