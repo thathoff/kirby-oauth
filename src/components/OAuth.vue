@@ -49,6 +49,19 @@ export default {
   border-top: 1px solid var(--color-border);
 }
 
+.thathoff-oauth-providers:first-child {
+  padding-top: 0;
+  margin-top: 0;
+  border-top: none;
+}
+
+/* Fix spacings in install view */
+.k-headline {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-weight: var(--font-bold);
+}
+
 .thathoff-oauth-error {
   margin-bottom: var(--spacing-5);
   background-color: var(--theme-color-back);
@@ -62,6 +75,7 @@ export default {
 
 .thathoff-oauth-provider {
   width: 100%;
-  margin-top: var(--spacing-2);
+  /* use important to make sure the button does not break in installation view */
+  margin-top: var(--spacing-2) !important;
 }
 </style>
