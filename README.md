@@ -1,5 +1,7 @@
 # Kirby OAuth 2.0 Plugin
 
+![Screnshot of Kirby’s Login Screen with OAuth](/.github/screenshot.png?raw=true)
+
 This plugin is an plugin to provide [OAuth 2.0](http://oauth.net/2/) support for panel authentication in [Kirby](https://getkirby.com). It uses the [PHP League’s OAuth 2 Client](https://oauth2-client.thephpleague.com/), so all [official](https://oauth2-client.thephpleague.com/providers/league/) and [third-party providers](https://oauth2-client.thephpleague.com/providers/thirdparty/) are supported. It’s even possible to [implement your own](https://oauth2-client.thephpleague.com/providers/implementing/).
 
 ## Kirby Compatibility
