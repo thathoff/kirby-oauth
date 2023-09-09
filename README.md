@@ -1,14 +1,18 @@
-# Kirby OAuth 2 Plugin
+# Kirby OAuth 2.0 Plugin
 
-This plugin is an interface to use  [OAuth 2.0](http://oauth.net/2/) providers for user authentication in [Kirby 3](https://getkirby.com). It uses the [PHP League’s OAuth 2 Client](https://oauth2-client.thephpleague.com/), so all [official](https://oauth2-client.thephpleague.com/providers/league/) and [third-party providers](https://oauth2-client.thephpleague.com/providers/thirdparty/) are supported. It’s even possible to [implement your own](https://oauth2-client.thephpleague.com/providers/implementing/).
+This plugin is an plugin to provide [OAuth 2.0](http://oauth.net/2/) support for panel authentication in [Kirby](https://getkirby.com). It uses the [PHP League’s OAuth 2 Client](https://oauth2-client.thephpleague.com/), so all [official](https://oauth2-client.thephpleague.com/providers/league/) and [third-party providers](https://oauth2-client.thephpleague.com/providers/thirdparty/) are supported. It’s even possible to [implement your own](https://oauth2-client.thephpleague.com/providers/implementing/).
 
-⚠️ For Kirby 3.5.0 support please use version 1 of this plugin. Version 2 only works with Kirby >= 3.6.0
+## Kirby Compatibility
+
+- For **Kirby 4** use version 3.0.0 or higher
+- For **Kirby 3.6 - 3.9** use version 2 or higher
+- For **Kirby 3.0 - 3.6** use version 1 (not maintained anymore)
 
 ---
 
 ## Installation with Composer
 
-Because of secondary dependencies for providers, installation via composer is the only currently supported method.
+Because of secondary dependencies for providers, **installation via composer is the only currently supported method**.
 
 ### Install the Plugin
 ```
