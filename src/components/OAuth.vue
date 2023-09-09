@@ -2,15 +2,24 @@
   <div class="thathoff-oauth-providers">
     <div
       v-if="error !== null"
-      class="k-login-alert k-login-alert--oauth"
+      class="thathoff-oauth-error"
+      data-theme="error"
       @click="error = null"
     >
-      <span>{{ error }}</span>
       <k-icon type="alert" />
+      <span>{{ error }}</span>
     </div>
-    <k-field name="oauth" label="Sign in with">
-      <k-items layout="list" :items="providersForList" />
-    </k-field>
+
+    <k-headline>Sign in with…</k-headline>
+    <k-button
+      class="thathoff-oauth-provider"
+      variant="filled"
+      v-for="provider in providers"
+      target="_self"
+      :link="provider.href"
+      :key="provider.id">
+      {{  provider.name }}
+    </k-button>
   </div>
 </template>
 
@@ -29,31 +38,30 @@ export default {
       type: String,
       default: null
     }
-  },
-
-  computed: {
-    providersForList() {
-      return this.providers.map(provider => ({
-        id: provider.id,
-        class: `thathoff-oauth-provider-${provider.id}`,
-        text: provider.name,
-        link: provider.href,
-        target: "_self",
-        options: [{icon: 'angle-right'}]
-      }));
-    }
   }
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .thathoff-oauth-providers {
-  padding-top: 1rem;
+  padding-top: var(--spacing-10);
+  margin-top: var(--spacing-10);
+  border-top: 1px solid var(--color-border);
 }
 
-.k-login-alert {
-  &--oauth {
-    margin-bottom: 1rem;
-  }
+.thathoff-oauth-error {
+  margin-bottom: var(--spacing-5);
+  background-color: var(--theme-color-back);
+  color: var(--theme-color-text);
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-2);
+  border-radius: var(--rounded);
+  gap: 0.5rem;
+}
+
+.thathoff-oauth-provider {
+  width: 100%;
+  margin-top: var(--spacing-2);
 }
 </style>
