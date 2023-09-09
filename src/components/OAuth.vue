@@ -10,7 +10,7 @@
       <span>{{ error }}</span>
     </div>
 
-    <k-headline>Sign in with…</k-headline>
+    <k-headline>{{$t('thathoff.oauth.signInWith') }}</k-headline>
     <k-button
       class="thathoff-oauth-provider"
       variant="filled"
