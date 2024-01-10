@@ -11,5 +11,6 @@ load([
 Kirby::plugin('thathoff/oauth', [
     'routes' => include(__DIR__ . '/plugin/routes.php'),
     'options' => include(__DIR__ . '/plugin/options.php'),
-    'api' => include(__DIR__ . '/plugin/api.php')
+    'api' => include(__DIR__ . '/plugin/api.php'),
+    'translations' => include(__DIR__ . '/plugin/translations.php'),
 ]);
