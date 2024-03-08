@@ -129,3 +129,30 @@ By default only whitelisted users are allowed to login into the Kirby panel.
 **Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `admin`. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually whitelist users by changing the role in the Kirby panel.
 
 **Only Existing User:** By setting `onlyExistingUsers` to true only created uses are able to login with an OAuth provider, no new users are created.
+
+### Use Hooks
+
+Before and after the KirbyUser gets created or logged in a hook is triggered.
+
+```php
+/**
+ * @var \League\OAuth2\Client\Provider\ResourceOwnerInterface $oauthUser
+ * @var Kirby\Cms\User $user
+ */
+
+'hooks' => [
+    'thathoff.oauth.user-create:before' => function ($oauthUser) {
+      // return null|true to use the plugins user-creation
+      // return a Kirby\Cms\User to overwrite the plugin user creation
+    },
+    'thathoff.oauth.user-create:after' => function ($oauthUser, $user) {
+
+    },
+    'thathoff.oauth.login:before' => function ($oauthUser, $user) {
+
+    },
+    'thathoff.oauth.login:after' => function ($oauthUser, $user) {
+
+    }
+]
+```

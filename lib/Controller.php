@@ -2,6 +2,7 @@
 
 namespace Thathoff\Oauth;
 
+use Kirby\Cms\User;
 use Kirby\Http\Header;
 use Kirby\Http\Uri;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
@@ -147,26 +148,46 @@ class Controller
         }
 
         if (!$kirbyUser = $this->kirby->user($email)) {
-            $onlyExistingUsers = $this->kirby->option('thathoff.oauth.onlyExistingUsers', false);
 
-            if ($onlyExistingUsers) {
-                $this->error("User missing and creating users is disabled!");
+            $createResult = $this->kirby->apply('thathoff.oauth.user-create:before', ['oauthUser' => $oauthUser, 'result' => null], 'result');
+            $kirbyUser = null;
+
+            if ($createResult instanceof User) {
+                $kirbyUser = $createResult;
             }
 
-            if (!$this->checkWhiteLists($email)) {
-                $this->error("Access denied for $email.");
+            if ($createResult === true || $createResult === null) {
+
+                $onlyExistingUsers = $this->kirby->option('thathoff.oauth.onlyExistingUsers', false);
+
+                if ($onlyExistingUsers) {
+                    $this->error("User missing and creating users is disabled!");
+                }
+
+                if (!$this->checkWhiteLists($email)) {
+                    $this->error("Access denied for $email.");
+                }
+
+                $this->kirby->impersonate('kirby');
+                $kirbyUser = $this->kirby->users()->create([
+                    'name'      => $name,
+                    'password'  => bin2hex(random_bytes(32)),
+                    'email'     => $email,
+                    'role'      => $this->kirby->option('thathoff.oauth.defaultRole', 'admin'),
+                ]);
             }
 
-            $this->kirby->impersonate('kirby');
-            $kirbyUser = $this->kirby->users()->create([
-                'name'      => $name,
-                'password'  => bin2hex(random_bytes(32)),
-                'email'     => $email,
-                'role'      => $this->kirby->option('thathoff.oauth.defaultRole', 'admin'),
-            ]);
+            $this->kirby->trigger('thathoff.oauth.user-create:after', ['oauthUser' => $oauthUser, 'user' => $kirbyUser]);
+
+            if(!$kirbyUser) {
+                $this->error("User cannot be created.");
+            }
         }
 
+        $this->kirby->trigger('thathoff.oauth.login:before', ['oauthUser' => $oauthUser, 'user' => $kirbyUser]);
         $kirbyUser->loginPasswordless();
+        $this->kirby->trigger('thathoff.oauth.login:after', ['oauthUser' => $oauthUser, 'user' => $kirbyUser,]);
+
         $this->goToPanel();
     }
 
