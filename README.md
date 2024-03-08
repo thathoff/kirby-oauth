@@ -122,3 +122,18 @@ By default only whitelisted users are allowed to login into the Kirby panel.
 **Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `admin`. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually whitelist users by changing the role in the Kirby panel.
 
 **Only Existing User:** By setting `onlyExistingUsers` to true only created uses are able to login with an OAuth provider, no new users are created.
+
+### Use Hooks
+
+Before and after the Kirbyuser gets logged in a hook is triggered. They contain information about the Kirbyuser and the oauthUserData from the authentication request.
+
+```
+'hooks' => [
+    'thathoff.oauth.login:before' => function ($user, $oauthUserData) {
+        
+    },
+    'thathoff.oauth.login:after' => function ($user, $oauthUserData) {
+        
+    }
+]
+```

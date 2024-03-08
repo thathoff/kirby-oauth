@@ -165,7 +165,9 @@ class Controller
             ]);
         }
 
+        $this->kirby->trigger('thathoff.oauth.login:before', ['user' => $kirbyUser, 'oauthUserData' => $oauthUserData]);
         $kirbyUser->loginPasswordless();
+        $this->kirby->trigger('thathoff.oauth.login:after', ['user' => $kirbyUser, 'oauthUserData' => $oauthUserData]);
         $this->goToPanel();
     }
 
