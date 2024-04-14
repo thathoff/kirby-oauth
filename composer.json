@@ -1,6 +1,7 @@
 {
     "name": "thathoff/kirby-oauth",
     "description": "Kirby OAuth 2 Plugin",
+    "homepage": "https://github.com/thathoff/kirby-oauth",
     "type": "kirby-plugin",
     "license": "MIT",
     "version": "3.0.0",
