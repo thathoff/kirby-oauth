@@ -8,12 +8,17 @@ class Provider
     private $id = null;
     private $provider = null;
     private $state = null;
+    private $icon = null;
     private $getAuthorizationUrlOptions = null;
     public $data = [];
 
     public function __construct($id, array $config)
     {
         $this->id = $id;
+
+        $this->icon = !empty($config['icon']) ? $config['icon'] : null;
+        unset($config['icon']);
+
         $this->name = !empty($config['name']) ? $config['name'] : ucwords($this->id);
         unset($config['name']);
 
@@ -56,6 +61,11 @@ class Provider
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getIcon()
+    {
+        return $this->icon;
     }
 
     public function __call($method, $args)
