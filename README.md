@@ -89,6 +89,7 @@ Additionally the two properties `name` and `class` are supported to supply a dis
     'class' => "League\OAuth2\Client\Provider\Google", // use special google class from league/oauth2-google
     'clientId' => 'somerandomstring.apps.googleusercontent.com',
     'clientSecret' => 'clientsecret',
+    'icon'         => 'users'  // Pick any default Kirby icon for the login button (optional)
   ],
   'custom' => [
     // this one uses \League\OAuth2\Client\Provider\GenericProvider automatically
@@ -98,7 +99,8 @@ Additionally the two properties `name` and `class` are supported to supply a dis
     'redirectUri'             => 'https://example.com/your-redirect-url/',
     'urlAuthorize'            => 'https://example.com/oauth2/lockdin/authorize',
     'urlAccessToken'          => 'https://example.com/oauth2/lockdin/token',
-    'urlResourceOwnerDetails' => 'https://example.com/oauth2/lockdin/resource'
+    'urlResourceOwnerDetails' => 'https://example.com/oauth2/lockdin/resource',
+    'icon'                    => 'users'  // Pick any default Kirby icon for the login button (optional)
   ],
 ```
 

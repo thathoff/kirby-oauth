@@ -28,6 +28,7 @@ class Controller
                         'id'   => $provider->getId(),
                         'name' => $provider->getName(),
                         'href' => new Uri('oauth/login') . '/' . $provider->getId(),
+                        'icon' => $provider->getIcon(),
                     ];
                 }
             )
