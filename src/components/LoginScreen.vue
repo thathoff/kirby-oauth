@@ -1,7 +1,7 @@
 <template>
   <div>
     <k-login
-      :methods="methods"
+      v-bind="{ methods, value }"
       v-if="settings.enabled === false || settings.onlyOauth === false"
     />
     <OAuth
@@ -21,7 +21,8 @@ export default {
   },
   props: {
     methods: Array,
-    pending: Object
+    pending: Object,
+    value: Object
   },
   data() {
     return {
