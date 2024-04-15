@@ -125,15 +125,27 @@ By default only whitelisted users are allowed to login into the Kirby panel.
 
 ### Use Hooks
 
-Before and after the Kirbyuser gets logged in a hook is triggered. They contain information about the Kirbyuser and the oauthUserData from the authentication request.
+Before and after the KirbyUser gets created or logged in a hook is triggered.
 
 ```
+/**
+ * @var \League\OAuth2\Client\Provider\ResourceOwnerInterface $oauthUser
+ * @var Kirby\Cms\User $user
+ */
+
 'hooks' => [
-    'thathoff.oauth.login:before' => function ($user, $oauthUserData) {
-        
+    'thathoff.oauth.user-create:before' => function ($oauthUser) {
+      // return null|true to use the plugins user-creation
+      // return a Kirby\Cms\User to overwrite the plugin user creation
     },
-    'thathoff.oauth.login:after' => function ($user, $oauthUserData) {
-        
+    'thathoff.oauth.user-create:after' => function ($oauthUser, $user) {
+
+    },
+    'thathoff.oauth.login:before' => function ($oauthUser, $user) {
+
+    },
+    'thathoff.oauth.login:after' => function ($oauthUser, $user) {
+
     }
 ]
 ```
