@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import OAuth from "./OAuth";
+import OAuth from "./OAuth.vue";
 
 export default {
   components: {
