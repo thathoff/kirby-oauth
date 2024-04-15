@@ -8,7 +8,6 @@
     <OAuth
       v-if="settings.enabled === true"
       :providers="providers"
-      :error="error"
     />
   </div>
 </template>
@@ -43,6 +42,17 @@ export default {
     async load() {
       this.settings = await this.$api.get("oauth/settings");
       this.error = (await this.$api.get("oauth/oauthError")).msg;
+
+      if (this.error) {
+        // mimic kirby error handling to show error message on top
+        // of the login screen
+        this.onError({
+          message: this.error,
+          details: {
+            challengeDestroyed: false
+          }
+        });
+      }
     },
     onError(error) {
       this.$emit("error", error);
