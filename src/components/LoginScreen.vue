@@ -2,6 +2,7 @@
   <div>
     <k-login
       v-bind="{ methods, value }"
+      @error="onError"
       v-if="settings.enabled === false || settings.onlyOauth === false"
     />
     <OAuth
@@ -42,6 +43,9 @@ export default {
     async load() {
       this.settings = await this.$api.get("oauth/settings");
       this.error = (await this.$api.get("oauth/oauthError")).msg;
+    },
+    onError(error) {
+      this.$emit("error", error);
     }
   }
 };
