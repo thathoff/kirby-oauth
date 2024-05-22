@@ -1,19 +1,19 @@
 <template>
   <div>
     <k-login
-      :methods="methods"
+      v-bind="{ methods, value }"
+      @error="onError"
       v-if="settings.enabled === false || settings.onlyOauth === false"
     />
     <OAuth
       v-if="settings.enabled === true"
       :providers="providers"
-      :error="error"
     />
   </div>
 </template>
 
 <script>
-import OAuth from "./OAuth";
+import OAuth from "./OAuth.vue";
 
 export default {
   components: {
@@ -21,7 +21,8 @@ export default {
   },
   props: {
     methods: Array,
-    pending: Object
+    pending: Object,
+    value: Object
   },
   data() {
     return {
@@ -41,6 +42,20 @@ export default {
     async load() {
       this.settings = await this.$api.get("oauth/settings");
       this.error = (await this.$api.get("oauth/oauthError")).msg;
+
+      if (this.error) {
+        // mimic kirby error handling to show error message on top
+        // of the login screen
+        this.onError({
+          message: this.error,
+          details: {
+            challengeDestroyed: false
+          }
+        });
+      }
+    },
+    onError(error) {
+      this.$emit("error", error);
     }
   }
 };
