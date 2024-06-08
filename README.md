@@ -80,15 +80,19 @@ return [
 
 The `thathoff.oauth.providers` array is a list of all configured OAuth Providers with a unique key for each entry. Each array entry is used as the configuration option to a new OAauth Provider Class instance so all options which are documented for the selected OAuth Provider class are available.
 
+For example adding `'hostedDomain' => 'example.com'` in your google provider options will restrict users to an `@example.com` google account, as documented [here](https://github.com/thephpleague/oauth2-google).
+
+
 Additionally the two properties `name` and `class` are supported to supply a display name for the login screen and the Provider class to use when you don’t want to use the `GenericProvider`.
 
 ```php
 //...
 'providers' => [
   'google' => [
-    'class' => "League\OAuth2\Client\Provider\Google", // use special google class from league/oauth2-google
+    'class' => "League\OAuth2\Client\Provider\Google",  // Use special google class from league/oauth2-google
     'clientId' => 'somerandomstring.apps.googleusercontent.com',
     'clientSecret' => 'clientsecret',
+    'hostedDomain' => 'example.com'  // Restrict users to an `@example.com` google account (optional)
     'icon'         => 'users'  // Pick any default Kirby icon for the login button (optional)
   ],
   'custom' => [
