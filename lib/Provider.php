@@ -9,6 +9,7 @@ class Provider
     private $provider = null;
     private $state = null;
     private $icon = null;
+    private $scope = null;
     private $getAuthorizationUrlOptions = null;
     public $data = [];
 
@@ -24,6 +25,9 @@ class Provider
 
         $this->state = !empty($config['state']) ? $config['state'] : null;
         unset($config['state']);
+
+        $this->scope = !empty($config['scope']) ? $config['scope'] : null;
+        unset($config['scope']);
 
         $class = "League\OAuth2\Client\Provider\GenericProvider";
         if (!empty($config['class']) && class_exists($config['class'])) {
@@ -48,6 +52,10 @@ class Provider
 
         if (!isset($options['state']) && $this->state) {
             $options['state'] = $this->state;
+        }
+
+        if (!isset($options['scope']) && $this->scope) {
+            $options['scope'] = $this->scope;
         }
 
         return $this->__call("getAuthorizationUrl", [$options]);

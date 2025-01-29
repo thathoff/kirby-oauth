@@ -100,18 +100,19 @@ Additionally the two properties `name` and `class` are supported to supply a dis
     'name'                    => 'My Custom Provider' // The name is optional
     'clientId'                => 'demoapp',    // The client ID assigned to you by the provider
     'clientSecret'            => 'demopass',   // The client password assigned to you by the provider
-    'redirectUri'             => 'https://example.com/your-redirect-url/',
+    'redirectUri'             => 'https://kirby.example.com/your-redirect-url/',
     'urlAuthorize'            => 'https://example.com/oauth2/lockdin/authorize',
     'urlAccessToken'          => 'https://example.com/oauth2/lockdin/token',
     'urlResourceOwnerDetails' => 'https://example.com/oauth2/lockdin/resource',
-    'icon'                    => 'users'  // Pick any default Kirby icon for the login button (optional)
+    'icon'                    => 'users',  // Pick any default Kirby icon for the login button (optional)
+    'scope'                   => 'openid email profile'  //specify the scope passed form the OIDC provider to kirby
   ],
 ```
 
 ### Redirect URL
 
-OAuth providers require you to supply a **redirect URL** when configuring an application.
-Please use `https://example.com/oauth/login/PROVIDER_ID` where example.com is your domain and PROVIDER_ID is the key
+OAuth providers require you to supply a **redirect URL** of your kirby instance when configuring an application.
+Please use `https://kirby.example.com/oauth/login/PROVIDER_ID` where kirby.example.com is your domain and PROVIDER_ID is the key
 of the config option in config.php (in the previous config example `google` or `custom`). If you have
 installed Kirby in a subdirectory, remember to include the subdirectory in the URL.
 
