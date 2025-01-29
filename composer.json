@@ -4,7 +4,7 @@
     "homepage": "https://github.com/thathoff/kirby-oauth",
     "type": "kirby-plugin",
     "license": "MIT",
-    "version": "3.1.0",
+    "version": "3.2.0",
     "authors": [
         {
             "name": "Markus Denhoff",
