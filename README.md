@@ -1,6 +1,6 @@
 # Kirby OAuth 2.0 Plugin
 
-![Screnshot of Kirby’s Login Screen with OAuth](/.github/screenshot.png?raw=true)
+![Screenshot of Kirby’s Login Screen with OAuth](/.github/screenshot.png?raw=true)
 
 This plugin is an plugin to provide [OAuth 2.0](http://oauth.net/2/) support for panel authentication in [Kirby](https://getkirby.com). It uses the [PHP League’s OAuth 2 Client](https://oauth2-client.thephpleague.com/), so all [official](https://oauth2-client.thephpleague.com/providers/league/) and [third-party providers](https://oauth2-client.thephpleague.com/providers/thirdparty/) are supported. It’s even possible to [implement your own](https://oauth2-client.thephpleague.com/providers/implementing/).
 
@@ -17,7 +17,8 @@ This plugin is an plugin to provide [OAuth 2.0](http://oauth.net/2/) support for
 Because of secondary dependencies for providers, **installation via composer is the only currently supported method**.
 
 ### Install the Plugin
-```
+
+```sh
 composer require thathoff/kirby-oauth
 ```
 
@@ -27,7 +28,7 @@ The Plugin uses [PHP League’s OAuth 2 Client](https://oauth2-client.thephpleag
 
 For example to install support for Google run:
 
-```
+```sh
 composer require league/oauth2-google
 ```
 
@@ -78,7 +79,9 @@ return [
 
 ### Provider Options
 
-The `thathoff.oauth.providers` array is a list of all configured OAuth Providers with a unique key for each entry. Each array entry is used as the configuration option to a new OAauth Provider Class instance so all options which are documented for the selected OAuth Provider class are available.
+The `thathoff.oauth.providers` array is a list of all configured OAuth Providers with a unique key for each entry. Each array entry is used as the configuration option to a new OAuth Provider Class instance so all options which are documented for the selected OAuth Provider class are available.
+
+For example adding `'hostedDomain' => 'example.com'` in your google provider options will restrict users to an `@example.com` google account, as documented [here](https://github.com/thephpleague/oauth2-google).
 
 Additionally the two properties `name` and `class` are supported to supply a display name for the login screen and the Provider class to use when you don’t want to use the `GenericProvider`.
 
@@ -86,9 +89,10 @@ Additionally the two properties `name` and `class` are supported to supply a dis
 //...
 'providers' => [
   'google' => [
-    'class' => "League\OAuth2\Client\Provider\Google", // use special google class from league/oauth2-google
+    'class' => "League\OAuth2\Client\Provider\Google",  // Use special google class from league/oauth2-google
     'clientId' => 'somerandomstring.apps.googleusercontent.com',
     'clientSecret' => 'clientsecret',
+    'hostedDomain' => 'example.com'  // Restrict users to an `@example.com` google account (optional)
     'icon'         => 'users'  // Pick any default Kirby icon for the login button (optional)
   ],
   'custom' => [
@@ -96,18 +100,19 @@ Additionally the two properties `name` and `class` are supported to supply a dis
     'name'                    => 'My Custom Provider' // The name is optional
     'clientId'                => 'demoapp',    // The client ID assigned to you by the provider
     'clientSecret'            => 'demopass',   // The client password assigned to you by the provider
-    'redirectUri'             => 'https://example.com/your-redirect-url/',
+    'redirectUri'             => 'https://kirby.example.com/your-redirect-url/',
     'urlAuthorize'            => 'https://example.com/oauth2/lockdin/authorize',
     'urlAccessToken'          => 'https://example.com/oauth2/lockdin/token',
     'urlResourceOwnerDetails' => 'https://example.com/oauth2/lockdin/resource',
-    'icon'                    => 'users'  // Pick any default Kirby icon for the login button (optional)
+    'icon'                    => 'users',  // Pick any default Kirby icon for the login button (optional)
+    'scope'                   => 'openid email profile'  //specify the scope passed form the OIDC provider to kirby
   ],
 ```
 
 ### Redirect URL
 
-OAuth providers require you to supply a **redirect URL** when configuring an application.
-Please use `https://example.com/oauth/login/PROVIDER_ID` where example.com is your domain and PROVIDER_ID is the key
+OAuth providers require you to supply a **redirect URL** of your kirby instance when configuring an application.
+Please use `https://kirby.example.com/oauth/login/PROVIDER_ID` where kirby.example.com is your domain and PROVIDER_ID is the key
 of the config option in config.php (in the previous config example `google` or `custom`). If you have
 installed Kirby in a subdirectory, remember to include the subdirectory in the URL.
 
@@ -124,3 +129,30 @@ By default only whitelisted users are allowed to login into the Kirby panel.
 **Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `admin`. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually whitelist users by changing the role in the Kirby panel.
 
 **Only Existing User:** By setting `onlyExistingUsers` to true only created uses are able to login with an OAuth provider, no new users are created.
+
+### Use Hooks
+
+Before and after the KirbyUser gets created or logged in a hook is triggered.
+
+```php
+/**
+ * @var \League\OAuth2\Client\Provider\ResourceOwnerInterface $oauthUser
+ * @var Kirby\Cms\User $user
+ */
+
+'hooks' => [
+    'thathoff.oauth.user-create:before' => function ($oauthUser) {
+      // return null|true to use the plugins user-creation
+      // return a Kirby\Cms\User to overwrite the plugin user creation
+    },
+    'thathoff.oauth.user-create:after' => function ($oauthUser, $user) {
+
+    },
+    'thathoff.oauth.login:before' => function ($oauthUser, $user) {
+
+    },
+    'thathoff.oauth.login:after' => function ($oauthUser, $user) {
+
+    }
+]
+```

@@ -7,5 +7,6 @@ return [
     'emailWhitelist' => null,
     'onlyOauth' => null,
     'onlyExistingUsers' => null,
-    'allowEveryone' => null
+    'allowEveryone' => null,
+    'scope'=> null
 ];
