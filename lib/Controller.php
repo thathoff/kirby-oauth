@@ -168,12 +168,16 @@ class Controller
                     $this->error("Access denied for $email.");
                 }
 
-                $kirbyUser = $this->kirby->impersonate('kirby', function() use ($name, $email) {
+                $admins = $this->kirby()->option('thathoff.oauth.adminWhitelist');
+                $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'admin');
+                $role = (!empty($admins) && A::has($admins, $email)) ? 'admin' : $defaultRole;
+
+                $kirbyUser = $this->kirby->impersonate('kirby', function() use ($name, $email, $role) {
                     return $this->kirby->users()->create([
                         'name'      => $name,
                         'password'  => bin2hex(random_bytes(32)),
                         'email'     => $email,
-                        'role'      => $this->kirby->option('thathoff.oauth.defaultRole', 'admin'),
+                        'role'      => $role,
                     ]);
                 });
             }

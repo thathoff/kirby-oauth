@@ -70,6 +70,11 @@ return [
           // For details see “Configure Allowed Users” below.
         ],
 
+        // List of E-mail addresses which will get the admin role assigned
+        'adminWhitelist' => [
+          // For details see “Configure Allowed Users” below.
+        ],
+
         // Remove the standard Kirby login form and only display OAuth options.
         'onlyOauth' => false,
       ],
