@@ -5,6 +5,8 @@ namespace Thathoff\Oauth;
 use Kirby\Cms\User;
 use Kirby\Http\Header;
 use Kirby\Http\Uri;
+use Kirby\Toolkit\A;
+use Kirby\Toolkit\Str;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 
 class Controller
@@ -159,6 +161,8 @@ class Controller
             if ($createResult === true || $createResult === null) {
 
                 $onlyExistingUsers = $this->kirby->option('thathoff.oauth.onlyExistingUsers', false);
+                $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'admin');
+                $admins = $this->kirby()->option('thathoff.oauth.adminWhitelist');
 
                 if ($onlyExistingUsers) {
                     $this->error("User missing and creating users is disabled!");
@@ -167,11 +171,13 @@ class Controller
                 if (!$this->checkWhiteLists($email)) {
                     $this->error("Access denied for $email.");
                 }
+                
+                // Normalize values to be Case-Insensitive
+                $adminsNormalized = A::map($admins, fn($value) => Str::lower($value));
+                $emailNormalized = Str::lower($email);
+                $role = (!empty($admins) && A::has($adminsNormalized, $emailNormalized)) ? 'admin' : $defaultRole;
 
-                $admins = $this->kirby()->option('thathoff.oauth.adminWhitelist');
-                $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'admin');
-                $role = (!empty($admins) && A::has($admins, $email)) ? 'admin' : $defaultRole;
-
+                // Create User
                 $kirbyUser = $this->kirby->impersonate('kirby', function() use ($name, $email, $role) {
                     return $this->kirby->users()->create([
                         'name'      => $name,
