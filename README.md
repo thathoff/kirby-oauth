@@ -129,6 +129,8 @@ By default only whitelisted users are allowed to login into the Kirby panel.
 
 **Email Whitelist:** By adding email addresses to the email whitelist (`emailWhitelist`) all accounts with a verified email address matching one of the entires are permitted.
 
+**Admin Whitelist:** By adding email addresses to the admin whitelist (`adminWhitelist`) all accounts with a verified email address matching one of the entires are getting the admin role assigned.
+
 **Allow Everyone:** By setting `allowEveryone` to `true` all authenticated accounts are able to login. *Please use this option with care!* You probably want to change the default user role to a more restricted one then the default `admin`.
 
 **Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `admin`. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually whitelist users by changing the role in the Kirby panel.
