@@ -70,6 +70,11 @@ return [
           // For details see “Configure Allowed Users” below.
         ],
 
+        // List of E-mail addresses which will get the admin role assigned
+        'adminWhitelist' => [
+          // For details see “Configure Allowed Users” below.
+        ],
+
         // Remove the standard Kirby login form and only display OAuth options.
         'onlyOauth' => false,
       ],
@@ -123,6 +128,8 @@ By default only whitelisted users are allowed to login into the Kirby panel.
 **Domain Whitelist:** By adding domains to the domain whitelist (`domainWhitelist`) all accounts with a verified email address at one of the domains are permitted.
 
 **Email Whitelist:** By adding email addresses to the email whitelist (`emailWhitelist`) all accounts with a verified email address matching one of the entires are permitted.
+
+**Admin Whitelist:** By adding email addresses to the admin whitelist (`adminWhitelist`) all accounts with a verified email address matching one of the entires are getting the admin role assigned.
 
 **Allow Everyone:** By setting `allowEveryone` to `true` all authenticated accounts are able to login. *Please use this option with care!* You probably want to change the default user role to a more restricted one then the default `admin`.
 
