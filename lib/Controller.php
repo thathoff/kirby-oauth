@@ -162,7 +162,7 @@ class Controller
 
                 $onlyExistingUsers = $this->kirby->option('thathoff.oauth.onlyExistingUsers', false);
                 $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'admin');
-                $admins = $this->kirby()->option('thathoff.oauth.adminWhitelist');
+                $admins = $this->kirby->option('thathoff.oauth.adminWhitelist');
 
                 if ($onlyExistingUsers) {
                     $this->error("User missing and creating users is disabled!");
