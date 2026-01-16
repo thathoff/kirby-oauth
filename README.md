@@ -78,7 +78,7 @@ return [
         // Remove the standard Kirby login form and only display OAuth options.
         'onlyOauth' => false,
 
-        // Set to true to disable checking for the "email_verified" field in OAuth response. Authentik sets this to false.
+        // Set this to 'true' to disable checking for the 'email_verified' field in the OAuth response. While some providers do not send this information, it is recommended that you keep this option enabled if your provider supports it.
         'skipEmailVerifiedCheck' => false
       ],
   ],
