@@ -32,6 +32,7 @@ class Controller
                         'name' => $provider->getName(),
                         'href' => new Uri('oauth/login') . '/' . $provider->getId(),
                         'icon' => $provider->getIcon(),
+                        'theme' => $provider->getTheme(),
                     ];
                 }
             )
@@ -171,7 +172,7 @@ class Controller
                 if (!$this->checkWhiteLists($email)) {
                     $this->error("Access denied for $email.");
                 }
-                
+
                 // Normalize values to be Case-Insensitive
                 $adminsNormalized = A::map($admins, fn($value) => Str::lower($value));
                 $emailNormalized = Str::lower($email);

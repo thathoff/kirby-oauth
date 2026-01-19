@@ -9,6 +9,7 @@ class Provider
     private $provider = null;
     private $state = null;
     private $icon = null;
+    private $theme = null;
     private $scope = null;
     private $getAuthorizationUrlOptions = null;
     public $data = [];
@@ -19,6 +20,9 @@ class Provider
 
         $this->icon = !empty($config['icon']) ? $config['icon'] : null;
         unset($config['icon']);
+
+        $this->theme = !empty($config['theme']) ? $config['theme'] : null;
+        unset($config['theme']);
 
         $this->name = !empty($config['name']) ? $config['name'] : ucwords($this->id);
         unset($config['name']);
@@ -74,6 +78,11 @@ class Provider
     public function getIcon()
     {
         return $this->icon;
+    }
+
+    public function getTheme()
+    {
+        return $this->theme;
     }
 
     public function __call($method, $args)
