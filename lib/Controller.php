@@ -230,11 +230,11 @@ class Controller
     private function error($message = null)
     {
         $this->session->set("oauthError", $message);
-        go("panel/login");
+        go($this->kirby->url('panel') . '/login');
     }
 
     private function goToPanel()
     {
-        go("panel");
+        go($this->kirby->url('panel'));
     }
 }
