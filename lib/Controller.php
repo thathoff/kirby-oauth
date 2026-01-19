@@ -146,7 +146,9 @@ class Controller
             $this->error("E-mail address missing!");
         }
 
-        if ($email_verified === false) {
+        $skipEmailVerifiedCheck = $this->kirby->option('thathoff.oauth.skipEmailVerifiedCheck', false);
+
+        if ($skipEmailVerifiedCheck === true || $email_verified === false) {
             $this->error("E-mail address not verified!");
         }
 
