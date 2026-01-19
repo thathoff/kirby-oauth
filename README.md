@@ -77,6 +77,9 @@ return [
 
         // Remove the standard Kirby login form and only display OAuth options.
         'onlyOauth' => false,
+
+        // Set this to 'true' to disable checking for the 'email_verified' field in the OAuth response. While some providers do not send this information, it is recommended that you keep this option enabled if your provider supports it.
+        'skipEmailVerifiedCheck' => false
       ],
   ],
 ];
@@ -99,6 +102,7 @@ Additionally the two properties `name` and `class` are supported to supply a dis
     'clientSecret' => 'clientsecret',
     'hostedDomain' => 'example.com'  // Restrict users to an `@example.com` google account (optional)
     'icon'         => 'users'  // Pick any default Kirby icon for the login button (optional)
+    'theme'        => 'green'  // Pick any  Kirby theme colors (see https://lab.getkirby.com/public/lab/components/buttons/2_themes)
   ],
   'custom' => [
     // this one uses \League\OAuth2\Client\Provider\GenericProvider automatically
@@ -110,6 +114,7 @@ Additionally the two properties `name` and `class` are supported to supply a dis
     'urlAccessToken'          => 'https://example.com/oauth2/lockdin/token',
     'urlResourceOwnerDetails' => 'https://example.com/oauth2/lockdin/resource',
     'icon'                    => 'users',  // Pick any default Kirby icon for the login button (optional)
+    'theme'                   => 'green'  // Pick any  Kirby theme colors (see https://lab.getkirby.com/public/lab/components/buttons/2_themes)
     'scope'                   => 'openid email profile'  //specify the scope passed form the OIDC provider to kirby
   ],
 ```

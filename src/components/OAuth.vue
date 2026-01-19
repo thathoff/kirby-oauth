@@ -16,6 +16,7 @@
       variant="filled"
       v-for="provider in providers"
       target="_self"
+      :theme="provider.theme ?? 'green'"
       :icon="provider.icon"
       :link="provider.href"
       :key="provider.id">

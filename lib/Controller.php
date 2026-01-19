@@ -32,6 +32,7 @@ class Controller
                         'name' => $provider->getName(),
                         'href' => new Uri('oauth/login') . '/' . $provider->getId(),
                         'icon' => $provider->getIcon(),
+                        'theme' => $provider->getTheme(),
                     ];
                 }
             )
@@ -145,7 +146,9 @@ class Controller
             $this->error("E-mail address missing!");
         }
 
-        if ($email_verified === false) {
+        $skipEmailVerifiedCheck = $this->kirby->option('thathoff.oauth.skipEmailVerifiedCheck', false);
+
+        if ($skipEmailVerifiedCheck === true || $email_verified === false) {
             $this->error("E-mail address not verified!");
         }
 
@@ -171,7 +174,7 @@ class Controller
                 if (!$this->checkWhiteLists($email)) {
                     $this->error("Access denied for $email.");
                 }
-                
+
                 // Normalize values to be Case-Insensitive
                 $adminsNormalized = A::map($admins, fn($value) => Str::lower($value));
                 $emailNormalized = Str::lower($email);
@@ -227,11 +230,11 @@ class Controller
     private function error($message = null)
     {
         $this->session->set("oauthError", $message);
-        go("panel/login");
+        go($this->kirby->url('panel') . '/login');
     }
 
     private function goToPanel()
     {
-        go("panel");
+        go($this->kirby->url('panel'));
     }
 }
