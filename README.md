@@ -40,47 +40,43 @@ The following configuration options are available. And can be added to the Kirby
 
 ```php
 return [
-  //... other config options
+  'thathoff.oauth' => [
+    // Add your providers configuration here
+    'providers' => [
+      // for details see „Provider Options” below
+    ],
 
-  'thathoff' => [
-      'oauth' => [
-        // Add your providers configuration here
-        'providers' => [
-          // for details see „Provider Options” below
-        ],
+    // Only allow logins for existing kirby users (don’t create new users)
+    'onlyExistingUsers' => false,
 
-        // Only allow logins for existing kirby users (don’t create new users)
-        'onlyExistingUsers' => false,
+    // Set the default role of newly created users.
+    'defaultRole' => 'admin',
 
-         // Set the default role of newly created users.
-        'defaultRole' => 'admin',
+    // Allow every valid user of all OAuth providers to login.
+    // For details see “Configure Allowed Users” below.
+    // DANGEROUS: Make sure you know what you’re doing when setting this to true!
+    'allowEveryone' => false,
 
-        // Allow every valid user of all OAuth providers to login.
-        // For details see “Configure Allowed Users” below.
-        // DANGEROUS: Make sure you know what you’re doing when setting this to true!
-        'allowEveryone' => false,
+    // List of E-mail domains which are allowed to login
+    'domainWhitelist' => [
+      // For details see “Configure Allowed Users” below.
+    ],
 
-        // List of E-mail domains which are allowed to login
-        'domainWhitelist' => [
-          // For details see “Configure Allowed Users” below.
-        ],
+    // List of E-mail addresses which are allowed to login
+    'emailWhitelist' => [
+      // For details see “Configure Allowed Users” below.
+    ],
 
-        // List of E-mail addresses which are allowed to login
-        'emailWhitelist' => [
-          // For details see “Configure Allowed Users” below.
-        ],
+    // List of E-mail addresses which will get the admin role assigned
+    'adminWhitelist' => [
+      // For details see “Configure Allowed Users” below.
+    ],
 
-        // List of E-mail addresses which will get the admin role assigned
-        'adminWhitelist' => [
-          // For details see “Configure Allowed Users” below.
-        ],
+    // Remove the standard Kirby login form and only display OAuth options.
+    'onlyOauth' => false,
 
-        // Remove the standard Kirby login form and only display OAuth options.
-        'onlyOauth' => false,
-
-        // Set this to 'true' to disable checking for the 'email_verified' field in the OAuth response. While some providers do not send this information, it is recommended that you keep this option enabled if your provider supports it.
-        'skipEmailVerifiedCheck' => false
-      ],
+    // Set this to 'true' to disable checking for the 'email_verified' field in the OAuth response. While some providers do not send this information, it is recommended that you keep this option enabled if your provider supports it.
+    'skipEmailVerifiedCheck' => false
   ],
 ];
 ```
