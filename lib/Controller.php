@@ -183,12 +183,19 @@ class Controller
 
                 // Create User
                 $kirbyUser = $this->kirby->impersonate('kirby', function() use ($name, $email, $role) {
-                    return $this->kirby->users()->create([
+                    $userData = [
                         'name'      => $name,
-                        'password'  => bin2hex(random_bytes(32)),
                         'email'     => $email,
                         'role'      => $role,
-                    ]);
+                    ];
+
+                    // The first user requires a password to be set
+                    // all other users can be created without a password
+                    if (!$this->kirby->users()->length() > 0) {
+                        $userData['password'] = bin2hex(random_bytes(32));
+                    }
+
+                    return $this->kirby->users()->create($userData);
                 });
             }
 
