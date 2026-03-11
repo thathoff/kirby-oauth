@@ -6,7 +6,7 @@ This plugin is an plugin to provide [OAuth 2.0](http://oauth.net/2/) support for
 
 ## Kirby Compatibility
 
-- For **Kirby 4** use version 3.0.0 or higher
+- For **Kirby 4 and up** use version 3.0.0 or higher
 - For **Kirby 3.6 - 3.9** use version 2 or higher
 - For **Kirby 3.0 - 3.6** use version 1 (not maintained anymore)
 
