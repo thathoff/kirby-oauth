@@ -41,8 +41,12 @@ class Controller
 
     public function settings()
     {
+        $onlyOauth = $this->kirby->option('thathoff.oauth.onlyOauth', false);
+        $autoRedirect = $onlyOauth && $this->kirby->option('thathoff.oauth.autoRedirect', false);
+
         return [
-            'onlyOauth' => $this->kirby->option('thathoff.oauth.onlyOauth', false),
+            'onlyOauth' => $onlyOauth,
+            'autoRedirect' => $autoRedirect,
             'enabled' => count($this->providers) > 0,
             'providers' => $this->providers(),
         ];
