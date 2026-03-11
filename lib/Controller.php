@@ -41,8 +41,12 @@ class Controller
 
     public function settings()
     {
+        $onlyOauth = $this->kirby->option('thathoff.oauth.onlyOauth', false);
+        $autoRedirect = $onlyOauth && $this->kirby->option('thathoff.oauth.autoRedirect', false);
+
         return [
-            'onlyOauth' => $this->kirby->option('thathoff.oauth.onlyOauth', false),
+            'onlyOauth' => $onlyOauth,
+            'autoRedirect' => $autoRedirect,
             'enabled' => count($this->providers) > 0,
             'providers' => $this->providers(),
         ];
@@ -136,8 +140,9 @@ class Controller
             $$var = isset($oauthUserData[$var]) ? $oauthUserData[$var] : null;
         }
 
-        //Azure Active Directory doesn't use "email" for email address, but "upn" for User Principal Name, and the email is always verified in Azure AD tenant
-        if(isset($oauthUserData["upn"])) {
+        // Azure Active Directory doesn't use "email" for email address, but "upn" for User Principal Name,
+        //and the email is always verified in Azure AD tenant
+        if (isset($oauthUserData["upn"])) {
             $email = $oauthUserData["upn"];
             $email_verified = true;
         }
@@ -146,9 +151,9 @@ class Controller
             $this->error("E-mail address missing!");
         }
 
+        // if email is not verified and check is not disabled abort login
         $skipEmailVerifiedCheck = $this->kirby->option('thathoff.oauth.skipEmailVerifiedCheck', false);
-
-        if ($skipEmailVerifiedCheck === true || $email_verified === false) {
+        if ($skipEmailVerifiedCheck === false && $email_verified === false) {
             $this->error("E-mail address not verified!");
         }
 
@@ -182,12 +187,19 @@ class Controller
 
                 // Create User
                 $kirbyUser = $this->kirby->impersonate('kirby', function() use ($name, $email, $role) {
-                    return $this->kirby->users()->create([
+                    $userData = [
                         'name'      => $name,
-                        'password'  => bin2hex(random_bytes(32)),
                         'email'     => $email,
                         'role'      => $role,
-                    ]);
+                    ];
+
+                    // The first user requires a password to be set
+                    // all other users can be created without a password
+                    if (!$this->kirby->users()->length() > 0) {
+                        $userData['password'] = bin2hex(random_bytes(32));
+                    }
+
+                    return $this->kirby->users()->create($userData);
                 });
             }
 

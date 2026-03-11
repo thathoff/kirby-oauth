@@ -6,9 +6,10 @@
       v-if="settings.enabled === false || settings.onlyOauth === false"
     />
     <OAuth
-      v-if="settings.enabled === true"
+      v-if="settings.enabled === true && !this.autoLogin"
       :providers="providers"
     />
+    <div v-if="this.autoLogin">{{$t('thathoff.oauth.autoLoggingIn') }}</div>
   </div>
 </template>
 
@@ -27,7 +28,8 @@ export default {
   data() {
     return {
       settings: {},
-      error: null
+      error: null,
+      autoLogin: false
     };
   },
   created() {
@@ -52,6 +54,13 @@ export default {
             challengeDestroyed: false
           }
         });
+        return;
+      }
+
+      if (this.settings.autoRedirect && this.providers.length == 1) {
+        this.autoLogin = true
+        window.location = this.providers[0].href;
+        return;
       }
     },
     onError(error) {
