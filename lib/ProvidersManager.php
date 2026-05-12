@@ -2,13 +2,14 @@
 
 namespace Thathoff\Oauth;
 
+use Kirby\Cms\App;
 use Kirby\Toolkit\Collection;
 
 class ProvidersManager extends Collection
 {
-    private $kirby = null;
+    private App $kirby;
 
-    public function __construct(\Kirby\Cms\App $kirby)
+    public function __construct(App $kirby)
     {
         $this->kirby = $kirby;
         $providers = $this->kirby->option('thathoff.oauth.providers');

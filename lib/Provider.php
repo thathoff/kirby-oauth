@@ -2,19 +2,35 @@
 
 namespace Thathoff\Oauth;
 
+use League\OAuth2\Client\Provider\AbstractProvider;
+use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use League\OAuth2\Client\Token\AccessTokenInterface;
+
+/**
+ * @method string getState()
+ * @method AccessTokenInterface getAccessToken(string $grant, array<string, mixed> $options = [])
+ * @method ResourceOwnerInterface getResourceOwner(AccessTokenInterface $token)
+ */
 class Provider
 {
-    private $name = null;
-    private $id = null;
-    private $provider = null;
-    private $state = null;
-    private $icon = null;
-    private $theme = null;
-    private $scope = null;
-    private $getAuthorizationUrlOptions = null;
-    public $data = [];
+    private string $name;
+    private string $id;
+    private AbstractProvider $provider;
+    private ?string $state = null;
+    private ?string $icon = null;
+    private ?string $theme = null;
+    private ?string $scope = null;
+    private string $emailField = 'email';
+    private ?bool $emailVerified = null;
+    /** @var array<string, mixed>|null */
+    private ?array $getAuthorizationUrlOptions = null;
+    /** @var array<string, mixed> */
+    public array $data = [];
 
-    public function __construct($id, array $config)
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function __construct(string $id, array $config)
     {
         $this->id = $id;
 
@@ -33,18 +49,37 @@ class Provider
         $this->scope = !empty($config['scope']) ? $config['scope'] : null;
         unset($config['scope']);
 
+        $this->emailField = !empty($config['emailField']) ? $config['emailField'] : 'email';
+        unset($config['emailField']);
+
+        if (array_key_exists('emailVerified', $config)) {
+            $this->emailVerified = $config['emailVerified'];
+        }
+        unset($config['emailVerified']);
+
         $class = "League\OAuth2\Client\Provider\GenericProvider";
         if (!empty($config['class']) && class_exists($config['class'])) {
             $class = $config['class'];
         }
 
-        $this->getAuthorizationUrlOptions = !empty($config['getAuthorizationUrlOptions']) ? $config['getAuthorizationUrlOptions'] : null;
+        $this->getAuthorizationUrlOptions = !empty($config['getAuthorizationUrlOptions'])
+            ? $config['getAuthorizationUrlOptions']
+            : null;
         unset($config['getAuthorizationUrlOptions']);
 
-        $this->provider = new $class($config);
+        $provider = new $class($config);
+        if (!$provider instanceof AbstractProvider) {
+            throw new \InvalidArgumentException(
+                "Provider class '$class' must extend " . AbstractProvider::class
+            );
+        }
+        $this->provider = $provider;
     }
 
-    public function getAuthorizationUrl($options = null)
+    /**
+     * @param array<string, mixed>|null $options
+     */
+    public function getAuthorizationUrl(?array $options = null): string
     {
         if (!is_array($options)) {
             $options = $this->getAuthorizationUrlOptions;
@@ -65,28 +100,41 @@ class Provider
         return $this->__call("getAuthorizationUrl", [$options]);
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function getIcon()
+    public function getIcon(): ?string
     {
         return $this->icon;
     }
 
-    public function getTheme()
+    public function getTheme(): ?string
     {
         return $this->theme;
     }
 
-    public function __call($method, $args)
+    public function getEmailField(): string
     {
-        return call_user_func_array([$this->provider, $method], $args);
+        return $this->emailField;
+    }
+
+    public function getEmailVerified(): ?bool
+    {
+        return $this->emailVerified;
+    }
+
+    /**
+     * @param array<int, mixed> $args
+     */
+    public function __call(string $method, array $args): mixed
+    {
+        return $this->provider->$method(...$args);
     }
 }

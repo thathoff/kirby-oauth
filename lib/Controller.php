@@ -2,18 +2,20 @@
 
 namespace Thathoff\Oauth;
 
+use Kirby\Cms\App;
 use Kirby\Cms\User;
 use Kirby\Http\Header;
 use Kirby\Http\Uri;
+use Kirby\Session\Session;
 use Kirby\Toolkit\A;
 use Kirby\Toolkit\Str;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 
 class Controller
 {
-    private $kirby = null;
-    private $providers = null;
-    private $session = null;
+    private App $kirby;
+    private ProvidersManager $providers;
+    private Session $session;
 
     public function __construct()
     {
@@ -22,7 +24,10 @@ class Controller
         $this->providers = new ProvidersManager($this->kirby);
     }
 
-    private function providers()
+    /**
+     * @return array<string, array<string, string|null>>
+     */
+    private function providers(): array
     {
         return $this->providers->count() > 0 ?
             $this->providers->toArray(
@@ -39,7 +44,10 @@ class Controller
             : [];
     }
 
-    public function settings()
+    /**
+     * @return array<string, mixed>
+     */
+    public function settings(): array
     {
         $onlyOauth = $this->kirby->option('thathoff.oauth.onlyOauth', false);
         $autoRedirect = $onlyOauth && $this->kirby->option('thathoff.oauth.autoRedirect', false);
@@ -52,21 +60,27 @@ class Controller
         ];
     }
 
-    public function login($provider = null)
+    public function login(?string $provider = null): void
     {
-        if (!$provider = $this->providers->get($provider)) {
+        if ($provider === null) {
+            $this->error("Oauth Provider not found!");
+        }
+
+        $provider = $this->providers->get($provider);
+        if (!$provider instanceof Provider) {
             $this->error("Oauth Provider not found!");
         }
 
         // Got an error, probably user denied access
-        if (get('error')) {
-            $this->error(get('error'));
+        $error = get('error');
+        if ($error) {
+            $this->error(is_string($error) ? $error : 'Unknown error');
         }
 
         // If we don't have an authorization code then get one
         if (!$code = get('code')) {
             $authorizationUrl = $provider->getAuthorizationUrl();
-            $this->session->set('oauth2state', $provider->getState());
+            $this->session->data()->set('oauth2state', $provider->getState());
 
             // Redirect the user to the authorization URL.
             header('Location: ' . $authorizationUrl);
@@ -79,8 +93,8 @@ class Controller
         }
 
         // State is invalid, possible CSRF attack in progress
-        if (empty(get('state')) || (get('state') !== $this->session->get('oauth2state'))) {
-            $this->session->remove('oauth2state');
+        if (empty(get('state')) || (get('state') !== $this->session->data()->get('oauth2state'))) {
+            $this->session->data()->remove('oauth2state');
             $this->error('Invalid state');
         }
 
@@ -93,7 +107,7 @@ class Controller
             $ownerDetails = $provider->getResourceOwner($token);
 
             // Use these details to login
-            $this->loginUser($ownerDetails);
+            $this->loginUser($ownerDetails, $provider);
         } catch (\Exception $e) {
             // Failed to get user details
             $this->error($e->getMessage());
@@ -102,49 +116,52 @@ class Controller
         $this->error();
     }
 
-    public function oauthError()
+    /**
+     * @return array<string, mixed>
+     */
+    public function oauthError(): array
     {
-        $error = $this->session->get('oauthError');
-        $this->session->remove('oauthError');
+        $error = $this->session->data()->get('oauthError');
+        $this->session->data()->remove('oauthError');
 
         return [
             'msg' => $error
         ];
     }
 
-    public static function handle($options)
+    public static function handle(string $options): mixed
     {
         $options = explode("/", trim($options, "/"));
-        $method = null;
+        $method = array_shift($options);
 
-        if (!empty($options[0])) {
-            $method = array_shift($options);
-        }
-
-        $instance = new Controller();
-        if (method_exists($instance, $method)) {
-            return call_user_func_array([$instance, $method], $options);
+        if ($method !== '') {
+            $instance = new Controller();
+            if (method_exists($instance, $method)) {
+                return $instance->$method(...$options);
+            }
         }
 
         Header::notfound();
         return "Not found!";
     }
 
-    private function loginUser(ResourceOwnerInterface $oauthUser)
+    private function loginUser(ResourceOwnerInterface $oauthUser, Provider $provider): void
     {
         $oauthUserData = $oauthUser->toArray();
 
-        $vars = ['name', 'email', 'email_verified', 'hd'];
+        $name = $oauthUserData['name'] ?? null;
+        $emailVerified = $oauthUserData['email_verified'] ?? null;
 
-        foreach ($vars as $var) {
-            $$var = isset($oauthUserData[$var]) ? $oauthUserData[$var] : null;
-        }
+        // The email field name can be configured per provider (defaults to "email").
+        // For example, Azure Active Directory uses "upn" (User Principal Name) instead.
+        $emailField = $provider->getEmailField();
+        $email = $oauthUserData[$emailField] ?? null;
 
-        // Azure Active Directory doesn't use "email" for email address, but "upn" for User Principal Name,
-        //and the email is always verified in Azure AD tenant
-        if (isset($oauthUserData["upn"])) {
-            $email = $oauthUserData["upn"];
-            $email_verified = true;
+        // A provider may also be configured to always be treated as verifying emails
+        // (e.g. Azure AD tenants), which overrides the email_verified claim.
+        $providerEmailVerified = $provider->getEmailVerified();
+        if ($providerEmailVerified !== null) {
+            $emailVerified = $providerEmailVerified;
         }
 
         if (!$email) {
@@ -153,12 +170,11 @@ class Controller
 
         // if email is not verified and check is not disabled abort login
         $skipEmailVerifiedCheck = $this->kirby->option('thathoff.oauth.skipEmailVerifiedCheck', false);
-        if ($skipEmailVerifiedCheck === false && $email_verified === false) {
+        if ($skipEmailVerifiedCheck === false && $emailVerified !== true) {
             $this->error("E-mail address not verified!");
         }
 
         if (!$kirbyUser = $this->kirby->user($email)) {
-
             $createResult = $this->kirby->apply('thathoff.oauth.user-create:before', ['oauthUser' => $oauthUser, 'result' => null], 'result');
             $kirbyUser = null;
 
@@ -167,7 +183,6 @@ class Controller
             }
 
             if ($createResult === true || $createResult === null) {
-
                 $onlyExistingUsers = $this->kirby->option('thathoff.oauth.onlyExistingUsers', false);
                 $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'admin');
                 $admins = $this->kirby->option('thathoff.oauth.adminWhitelist', []);
@@ -186,7 +201,7 @@ class Controller
                 $role = (!empty($admins) && A::has($adminsNormalized, $emailNormalized)) ? 'admin' : $defaultRole;
 
                 // Create User
-                $kirbyUser = $this->kirby->impersonate('kirby', function() use ($name, $email, $role) {
+                $kirbyUser = $this->kirby->impersonate('kirby', function () use ($name, $email, $role) {
                     $userData = [
                         'name'      => $name,
                         'email'     => $email,
@@ -195,7 +210,7 @@ class Controller
 
                     // The first user requires a password to be set
                     // all other users can be created without a password
-                    if (!$this->kirby->users()->length() > 0) {
+                    if ($this->kirby->users()->count() === 0) {
                         $userData['password'] = bin2hex(random_bytes(32));
                     }
 
@@ -205,7 +220,7 @@ class Controller
 
             $this->kirby->trigger('thathoff.oauth.user-create:after', ['oauthUser' => $oauthUser, 'user' => $kirbyUser]);
 
-            if(!$kirbyUser) {
+            if (!$kirbyUser) {
                 $this->error("User cannot be created.");
             }
         }
@@ -217,7 +232,7 @@ class Controller
         $this->goToPanel();
     }
 
-    private function checkWhiteLists($email)
+    private function checkWhiteLists(string $email): bool
     {
         $domainWhitelist = $this->kirby->option('thathoff.oauth.domainWhitelist', []);
         $emailWhitelist = $this->kirby->option('thathoff.oauth.emailWhitelist', []);
@@ -227,26 +242,34 @@ class Controller
             return true;
         }
 
-        if (is_array($emailWhitelist) && in_array($email, $emailWhitelist)) {
-            return true;
+        $emailNormalized = Str::lower($email);
+
+        if (is_array($emailWhitelist)) {
+            $emailWhitelistNormalized = A::map($emailWhitelist, fn($value) => Str::lower($value));
+            if (in_array($emailNormalized, $emailWhitelistNormalized, true)) {
+                return true;
+            }
         }
 
-        $domain = substr($email, strpos($email, "@") + 1);
-        if (is_array($domainWhitelist) && in_array($domain, $domainWhitelist)) {
-            return true;
+        $domain = Str::lower(substr($email, strpos($email, "@") + 1));
+        if (is_array($domainWhitelist)) {
+            $domainWhitelistNormalized = A::map($domainWhitelist, fn($value) => Str::lower($value));
+            if (in_array($domain, $domainWhitelistNormalized, true)) {
+                return true;
+            }
         }
 
         return false;
     }
 
-    private function error($message = null)
+    private function error(?string $message = null): never
     {
-        $this->session->set("oauthError", $message);
+        $this->session->data()->set("oauthError", $message);
         go($this->kirby->url('panel') . '/login');
     }
 
-    private function goToPanel()
+    private function goToPanel(): never
     {
-        go($this->kirby->url('panel'));
+        go((string)$this->kirby->url('panel'));
     }
 }
