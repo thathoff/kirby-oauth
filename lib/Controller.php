@@ -134,22 +134,19 @@ class Controller
     {
         $oauthUserData = $oauthUser->toArray();
 
-        $vars = ['name', 'email_verified', 'hd'];
-
-        foreach ($vars as $var) {
-            $$var = isset($oauthUserData[$var]) ? $oauthUserData[$var] : null;
-        }
+        $name = $oauthUserData['name'] ?? null;
+        $emailVerified = $oauthUserData['email_verified'] ?? null;
 
         // The email field name can be configured per provider (defaults to "email").
         // For example, Azure Active Directory uses "upn" (User Principal Name) instead.
         $emailField = $provider->getEmailField();
-        $email = isset($oauthUserData[$emailField]) ? $oauthUserData[$emailField] : null;
+        $email = $oauthUserData[$emailField] ?? null;
 
         // A provider may also be configured to always be treated as verifying emails
         // (e.g. Azure AD tenants), which overrides the email_verified claim.
         $providerEmailVerified = $provider->getEmailVerified();
         if ($providerEmailVerified !== null) {
-            $email_verified = $providerEmailVerified;
+            $emailVerified = $providerEmailVerified;
         }
 
         if (!$email) {
@@ -158,7 +155,7 @@ class Controller
 
         // if email is not verified and check is not disabled abort login
         $skipEmailVerifiedCheck = $this->kirby->option('thathoff.oauth.skipEmailVerifiedCheck', false);
-        if ($skipEmailVerifiedCheck === false && $email_verified !== true) {
+        if ($skipEmailVerifiedCheck === false && $emailVerified !== true) {
             $this->error("E-mail address not verified!");
         }
 
