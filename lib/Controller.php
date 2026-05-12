@@ -93,7 +93,7 @@ class Controller
             $ownerDetails = $provider->getResourceOwner($token);
 
             // Use these details to login
-            $this->loginUser($ownerDetails);
+            $this->loginUser($ownerDetails, $provider);
         } catch (\Exception $e) {
             // Failed to get user details
             $this->error($e->getMessage());
@@ -130,21 +130,26 @@ class Controller
         return "Not found!";
     }
 
-    private function loginUser(ResourceOwnerInterface $oauthUser)
+    private function loginUser(ResourceOwnerInterface $oauthUser, Provider $provider)
     {
         $oauthUserData = $oauthUser->toArray();
 
-        $vars = ['name', 'email', 'email_verified', 'hd'];
+        $vars = ['name', 'email_verified', 'hd'];
 
         foreach ($vars as $var) {
             $$var = isset($oauthUserData[$var]) ? $oauthUserData[$var] : null;
         }
 
-        // Azure Active Directory doesn't use "email" for email address, but "upn" for User Principal Name,
-        //and the email is always verified in Azure AD tenant
-        if (isset($oauthUserData["upn"])) {
-            $email = $oauthUserData["upn"];
-            $email_verified = true;
+        // The email field name can be configured per provider (defaults to "email").
+        // For example, Azure Active Directory uses "upn" (User Principal Name) instead.
+        $emailField = $provider->getEmailField();
+        $email = isset($oauthUserData[$emailField]) ? $oauthUserData[$emailField] : null;
+
+        // A provider may also be configured to always be treated as verifying emails
+        // (e.g. Azure AD tenants), which overrides the email_verified claim.
+        $providerEmailVerified = $provider->getEmailVerified();
+        if ($providerEmailVerified !== null) {
+            $email_verified = $providerEmailVerified;
         }
 
         if (!$email) {

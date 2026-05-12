@@ -11,6 +11,8 @@ class Provider
     private $icon = null;
     private $theme = null;
     private $scope = null;
+    private $emailField = 'email';
+    private $emailVerified = null;
     private $getAuthorizationUrlOptions = null;
     public $data = [];
 
@@ -32,6 +34,14 @@ class Provider
 
         $this->scope = !empty($config['scope']) ? $config['scope'] : null;
         unset($config['scope']);
+
+        $this->emailField = !empty($config['emailField']) ? $config['emailField'] : 'email';
+        unset($config['emailField']);
+
+        if (array_key_exists('emailVerified', $config)) {
+            $this->emailVerified = $config['emailVerified'];
+        }
+        unset($config['emailVerified']);
 
         $class = "League\OAuth2\Client\Provider\GenericProvider";
         if (!empty($config['class']) && class_exists($config['class'])) {
@@ -83,6 +93,16 @@ class Provider
     public function getTheme()
     {
         return $this->theme;
+    }
+
+    public function getEmailField()
+    {
+        return $this->emailField;
+    }
+
+    public function getEmailVerified()
+    {
+        return $this->emailVerified;
     }
 
     public function __call($method, $args)

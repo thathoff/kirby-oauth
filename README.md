@@ -85,6 +85,16 @@ return [
 ];
 ```
 
+> [!IMPORTANT]
+> **Breaking change for Azure Active Directory users:** Previous versions automatically mapped the `upn` claim to the email and treated it as verified. This implicit behaviour has been removed for security reasons (a malicious or misconfigured provider could otherwise claim arbitrary identities via `upn`). If you use Azure AD, you now have to configure this explicitly per provider:
+>
+> ```php
+> 'emailField'    => 'upn',
+> 'emailVerified' => true,
+> ```
+>
+> See the `emailField` / `emailVerified` options in the provider configuration below.
+
 ### Provider Options
 
 The `thathoff.oauth.providers` array is a list of all configured OAuth Providers with a unique key for each entry. Each array entry is used as the configuration option to a new OAuth Provider Class instance so all options which are documented for the selected OAuth Provider class are available.
@@ -115,7 +125,9 @@ Additionally the two properties `name` and `class` are supported to supply a dis
     'urlResourceOwnerDetails' => 'https://example.com/oauth2/lockdin/resource',
     'icon'                    => 'users',  // Pick any default Kirby icon for the login button (optional)
     'theme'                   => 'green'  // Pick any  Kirby theme colors (see https://lab.getkirby.com/public/lab/components/buttons/2_themes)
-    'scope'                   => 'openid email profile'  //specify the scope passed form the OIDC provider to kirby
+    'scope'                   => 'openid email profile',  //specify the scope passed form the OIDC provider to kirby
+    'emailField'              => 'email',  // Field in the provider's user data that contains the email address (default: "email"). Use "upn" for Azure AD.
+    'emailVerified'           => null,  // Override the email_verified claim: true treats the provider as always verifying emails, false as never. null (default) trusts the email_verified claim from the provider.
   ],
 ```
 
