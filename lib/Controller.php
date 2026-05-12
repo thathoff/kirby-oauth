@@ -2,18 +2,20 @@
 
 namespace Thathoff\Oauth;
 
+use Kirby\Cms\App;
 use Kirby\Cms\User;
 use Kirby\Http\Header;
 use Kirby\Http\Uri;
+use Kirby\Session\Session;
 use Kirby\Toolkit\A;
 use Kirby\Toolkit\Str;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 
 class Controller
 {
-    private $kirby = null;
-    private $providers = null;
-    private $session = null;
+    private App $kirby;
+    private ProvidersManager $providers;
+    private Session $session;
 
     public function __construct()
     {
@@ -22,7 +24,10 @@ class Controller
         $this->providers = new ProvidersManager($this->kirby);
     }
 
-    private function providers()
+    /**
+     * @return array<string, array<string, string|null>>
+     */
+    private function providers(): array
     {
         return $this->providers->count() > 0 ?
             $this->providers->toArray(
@@ -39,7 +44,10 @@ class Controller
             : [];
     }
 
-    public function settings()
+    /**
+     * @return array<string, mixed>
+     */
+    public function settings(): array
     {
         $onlyOauth = $this->kirby->option('thathoff.oauth.onlyOauth', false);
         $autoRedirect = $onlyOauth && $this->kirby->option('thathoff.oauth.autoRedirect', false);
@@ -52,7 +60,7 @@ class Controller
         ];
     }
 
-    public function login($provider = null)
+    public function login(?string $provider = null): void
     {
         if (!$provider = $this->providers->get($provider)) {
             $this->error("Oauth Provider not found!");
@@ -66,7 +74,7 @@ class Controller
         // If we don't have an authorization code then get one
         if (!$code = get('code')) {
             $authorizationUrl = $provider->getAuthorizationUrl();
-            $this->session->set('oauth2state', $provider->getState());
+            $this->session->data()->set('oauth2state', $provider->getState());
 
             // Redirect the user to the authorization URL.
             header('Location: ' . $authorizationUrl);
@@ -79,8 +87,8 @@ class Controller
         }
 
         // State is invalid, possible CSRF attack in progress
-        if (empty(get('state')) || (get('state') !== $this->session->get('oauth2state'))) {
-            $this->session->remove('oauth2state');
+        if (empty(get('state')) || (get('state') !== $this->session->data()->get('oauth2state'))) {
+            $this->session->data()->remove('oauth2state');
             $this->error('Invalid state');
         }
 
@@ -102,17 +110,20 @@ class Controller
         $this->error();
     }
 
-    public function oauthError()
+    /**
+     * @return array<string, mixed>
+     */
+    public function oauthError(): array
     {
-        $error = $this->session->get('oauthError');
-        $this->session->remove('oauthError');
+        $error = $this->session->data()->get('oauthError');
+        $this->session->data()->remove('oauthError');
 
         return [
             'msg' => $error
         ];
     }
 
-    public static function handle($options)
+    public static function handle(string $options): mixed
     {
         $options = explode("/", trim($options, "/"));
         $method = null;
@@ -130,7 +141,7 @@ class Controller
         return "Not found!";
     }
 
-    private function loginUser(ResourceOwnerInterface $oauthUser, Provider $provider)
+    private function loginUser(ResourceOwnerInterface $oauthUser, Provider $provider): void
     {
         $oauthUserData = $oauthUser->toArray();
 
@@ -195,7 +206,7 @@ class Controller
 
                     // The first user requires a password to be set
                     // all other users can be created without a password
-                    if (!$this->kirby->users()->length() > 0) {
+                    if ($this->kirby->users()->count() === 0) {
                         $userData['password'] = bin2hex(random_bytes(32));
                     }
 
@@ -217,7 +228,7 @@ class Controller
         $this->goToPanel();
     }
 
-    private function checkWhiteLists($email)
+    private function checkWhiteLists(string $email): bool
     {
         $domainWhitelist = $this->kirby->option('thathoff.oauth.domainWhitelist', []);
         $emailWhitelist = $this->kirby->option('thathoff.oauth.emailWhitelist', []);
@@ -247,13 +258,13 @@ class Controller
         return false;
     }
 
-    private function error($message = null)
+    private function error(?string $message = null): void
     {
-        $this->session->set("oauthError", $message);
+        $this->session->data()->set("oauthError", $message);
         go($this->kirby->url('panel') . '/login');
     }
 
-    private function goToPanel()
+    private function goToPanel(): void
     {
         go($this->kirby->url('panel'));
     }
