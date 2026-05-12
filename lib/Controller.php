@@ -158,7 +158,7 @@ class Controller
 
         // if email is not verified and check is not disabled abort login
         $skipEmailVerifiedCheck = $this->kirby->option('thathoff.oauth.skipEmailVerifiedCheck', false);
-        if ($skipEmailVerifiedCheck === false && $email_verified === false) {
+        if ($skipEmailVerifiedCheck === false && $email_verified !== true) {
             $this->error("E-mail address not verified!");
         }
 
