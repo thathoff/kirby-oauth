@@ -21,10 +21,13 @@
     },
     "require-dev": {
         "getkirby/cms": "^4.0 || ^5.0",
-        "phpstan/phpstan": "^2.0"
+        "phpstan/phpstan": "^2.0",
+        "squizlabs/php_codesniffer": "^3.10"
     },
     "scripts": {
-        "phpstan": "phpstan analyse"
+        "phpstan": "phpstan analyse",
+        "phpcs": "phpcs",
+        "phpcbf": "phpcbf"
     },
     "extra": {
         "installer-name": "oauth",
