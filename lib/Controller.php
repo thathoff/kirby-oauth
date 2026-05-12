@@ -62,13 +62,19 @@ class Controller
 
     public function login(?string $provider = null): void
     {
-        if (!$provider = $this->providers->get($provider)) {
+        if ($provider === null) {
+            $this->error("Oauth Provider not found!");
+        }
+
+        $provider = $this->providers->get($provider);
+        if (!$provider instanceof Provider) {
             $this->error("Oauth Provider not found!");
         }
 
         // Got an error, probably user denied access
-        if (get('error')) {
-            $this->error(get('error'));
+        $error = get('error');
+        if ($error) {
+            $this->error(is_string($error) ? $error : 'Unknown error');
         }
 
         // If we don't have an authorization code then get one
@@ -256,14 +262,14 @@ class Controller
         return false;
     }
 
-    private function error(?string $message = null): void
+    private function error(?string $message = null): never
     {
         $this->session->data()->set("oauthError", $message);
         go($this->kirby->url('panel') . '/login');
     }
 
-    private function goToPanel(): void
+    private function goToPanel(): never
     {
-        go($this->kirby->url('panel'));
+        go((string)$this->kirby->url('panel'));
     }
 }
