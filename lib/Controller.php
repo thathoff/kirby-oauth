@@ -232,13 +232,21 @@ class Controller
             return true;
         }
 
-        if (is_array($emailWhitelist) && in_array($email, $emailWhitelist)) {
-            return true;
+        $emailNormalized = Str::lower($email);
+
+        if (is_array($emailWhitelist)) {
+            $emailWhitelistNormalized = A::map($emailWhitelist, fn($value) => Str::lower($value));
+            if (in_array($emailNormalized, $emailWhitelistNormalized, true)) {
+                return true;
+            }
         }
 
-        $domain = substr($email, strpos($email, "@") + 1);
-        if (is_array($domainWhitelist) && in_array($domain, $domainWhitelist)) {
-            return true;
+        $domain = Str::lower(substr($email, strpos($email, "@") + 1));
+        if (is_array($domainWhitelist)) {
+            $domainWhitelistNormalized = A::map($domainWhitelist, fn($value) => Str::lower($value));
+            if (in_array($domain, $domainWhitelistNormalized, true)) {
+                return true;
+            }
         }
 
         return false;
