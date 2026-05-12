@@ -126,15 +126,13 @@ class Controller
     public static function handle(string $options): mixed
     {
         $options = explode("/", trim($options, "/"));
-        $method = null;
+        $method = array_shift($options);
 
-        if (!empty($options[0])) {
-            $method = array_shift($options);
-        }
-
-        $instance = new Controller();
-        if (method_exists($instance, $method)) {
-            return call_user_func_array([$instance, $method], $options);
+        if ($method !== '') {
+            $instance = new Controller();
+            if (method_exists($instance, $method)) {
+                return $instance->$method(...$options);
+            }
         }
 
         Header::notfound();

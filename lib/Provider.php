@@ -62,10 +62,18 @@ class Provider
             $class = $config['class'];
         }
 
-        $this->getAuthorizationUrlOptions = !empty($config['getAuthorizationUrlOptions']) ? $config['getAuthorizationUrlOptions'] : null;
+        $this->getAuthorizationUrlOptions = !empty($config['getAuthorizationUrlOptions'])
+            ? $config['getAuthorizationUrlOptions']
+            : null;
         unset($config['getAuthorizationUrlOptions']);
 
-        $this->provider = new $class($config);
+        $provider = new $class($config);
+        if (!$provider instanceof AbstractProvider) {
+            throw new \InvalidArgumentException(
+                "Provider class '$class' must extend " . AbstractProvider::class
+            );
+        }
+        $this->provider = $provider;
     }
 
     /**
@@ -127,6 +135,6 @@ class Provider
      */
     public function __call(string $method, array $args): mixed
     {
-        return call_user_func_array([$this->provider, $method], $args);
+        return $this->provider->$method(...$args);
     }
 }
