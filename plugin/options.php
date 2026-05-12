@@ -9,5 +9,5 @@ return [
     'onlyOauth' => null,
     'onlyExistingUsers' => null,
     'allowEveryone' => null,
-    'scope'=> null
+    'scope' => null
 ];

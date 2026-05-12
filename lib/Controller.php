@@ -160,7 +160,6 @@ class Controller
         }
 
         if (!$kirbyUser = $this->kirby->user($email)) {
-
             $createResult = $this->kirby->apply('thathoff.oauth.user-create:before', ['oauthUser' => $oauthUser, 'result' => null], 'result');
             $kirbyUser = null;
 
@@ -169,7 +168,6 @@ class Controller
             }
 
             if ($createResult === true || $createResult === null) {
-
                 $onlyExistingUsers = $this->kirby->option('thathoff.oauth.onlyExistingUsers', false);
                 $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'admin');
                 $admins = $this->kirby->option('thathoff.oauth.adminWhitelist', []);
@@ -188,7 +186,7 @@ class Controller
                 $role = (!empty($admins) && A::has($adminsNormalized, $emailNormalized)) ? 'admin' : $defaultRole;
 
                 // Create User
-                $kirbyUser = $this->kirby->impersonate('kirby', function() use ($name, $email, $role) {
+                $kirbyUser = $this->kirby->impersonate('kirby', function () use ($name, $email, $role) {
                     $userData = [
                         'name'      => $name,
                         'email'     => $email,
@@ -207,7 +205,7 @@ class Controller
 
             $this->kirby->trigger('thathoff.oauth.user-create:after', ['oauthUser' => $oauthUser, 'user' => $kirbyUser]);
 
-            if(!$kirbyUser) {
+            if (!$kirbyUser) {
                 $this->error("User cannot be created.");
             }
         }
