@@ -5,9 +5,6 @@ namespace Thathoff\Oauth;
 use Kirby\Cms\App;
 use Kirby\Toolkit\Collection;
 
-/**
- * @extends Collection<Provider>
- */
 class ProvidersManager extends Collection
 {
     private App $kirby;

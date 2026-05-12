@@ -8,3 +8,11 @@ parameters:
         - vendor/autoload.php
     excludePaths:
         - vendor
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        # Kirby 4's Toolkit\Collection is not generic; Kirby 5's is.
+        # We support both, so neither adding nor omitting a @extends
+        # generic tag is correct on both versions.
+        -
+            identifier: missingType.generics
+            path: lib/ProvidersManager.php
