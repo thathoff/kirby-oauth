@@ -4,9 +4,9 @@ namespace Thathoff\Oauth;
 
 return [
     [
-        'pattern' => 'oauth(:all)',
-        'action'  => function ($option) {
-            return Controller::handle($option);
+        'pattern' => 'oauth/login/(:any)',
+        'action'  => function ($provider) {
+            return Controller::handle('login/' . $provider);
         },
     ],
 ];

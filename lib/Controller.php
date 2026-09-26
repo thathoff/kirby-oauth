@@ -132,13 +132,20 @@ class Controller
     public static function handle(string $options): mixed
     {
         $options = explode("/", trim($options, "/"));
-        $method = array_shift($options);
+        $action = array_shift($options);
 
-        if ($method !== '') {
-            $instance = new Controller();
-            if (method_exists($instance, $method)) {
-                return $instance->$method(...$options);
-            }
+        // Only dispatch to an explicit list of actions. A dynamic method call
+        // would also reach private methods, since this runs in class scope.
+        switch ($action) {
+            case 'login':
+                (new Controller())->login($options[0] ?? null);
+                break;
+            case 'settings':
+                return (new Controller())->settings();
+            case 'providers':
+                return (new Controller())->providers();
+            case 'oauthError':
+                return (new Controller())->oauthError();
         }
 
         Header::notfound();
