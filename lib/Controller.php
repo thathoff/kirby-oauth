@@ -4,7 +4,6 @@ namespace Thathoff\Oauth;
 
 use Kirby\Cms\App;
 use Kirby\Cms\User;
-use Kirby\Http\Header;
 use Kirby\Http\Uri;
 use Kirby\Session\Session;
 use Kirby\Toolkit\A;
@@ -127,22 +126,6 @@ class Controller
         return [
             'msg' => $error
         ];
-    }
-
-    public static function handle(string $options): mixed
-    {
-        $options = explode("/", trim($options, "/"));
-        $method = array_shift($options);
-
-        if ($method !== '') {
-            $instance = new Controller();
-            if (method_exists($instance, $method)) {
-                return $instance->$method(...$options);
-            }
-        }
-
-        Header::notfound();
-        return "Not found!";
     }
 
     private function loginUser(ResourceOwnerInterface $oauthUser, Provider $provider): void
