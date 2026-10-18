@@ -2,7 +2,7 @@
 
 return [
     'providers' => null,
-    'defaultRole' => null,
+    'defaultRole' => 'editor',
     'domainWhitelist' => null,
     'emailWhitelist' => null,
     'adminWhitelist' => null,
