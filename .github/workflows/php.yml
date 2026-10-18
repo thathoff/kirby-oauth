@@ -14,8 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.2', '8.3', '8.4']
-        kirby-version: ['^4.0', '^5.0']
+        php-version: ['8.3', '8.4', '8.5']
+        kirby-version: ['^6.0@beta']
 
     steps:
       - name: Checkout

@@ -6,7 +6,8 @@ This plugin is an plugin to provide [OAuth 2.0](http://oauth.net/2/) support for
 
 ## Kirby Compatibility
 
-- For **Kirby 4 and up** use version 3.0.0 or higher
+- For **Kirby 6 and up** use version 4.0.0 or higher
+- For **Kirby 4 and 5** use version 3
 - For **Kirby 3.6 - 3.9** use version 2 or higher
 - For **Kirby 3.0 - 3.6** use version 1 (not maintained anymore)
 
@@ -32,6 +33,34 @@ For example to install support for Google run:
 composer require league/oauth2-google
 ```
 
+## Enable the Login Method
+
+Since Kirby 6 the plugin registers a regular [auth method](https://getkirby.com/releases/6/migration/plugin-developers/auth) named `oauth`. Enable it with Kirby’s `auth.methods` option in your `config.php`:
+
+```php
+return [
+  'auth' => [
+    // OAuth in addition to the standard password login
+    'methods' => ['password', 'oauth'],
+
+    // or: only allow OAuth logins
+    // 'methods' => ['oauth'],
+  ],
+];
+```
+
+Kirby shows a switcher on the login screen when more than one method is enabled. If only one provider is configured, the OAuth button in the switcher uses the name and icon of that provider (e.g. “Login with Google”) and redirects to it right away. The OAuth callback route (see “Redirect URL” below) refuses all logins when the `oauth` method is not enabled.
+
+### Two-Factor Authentication
+
+OAuth logins respect Kirby’s second factors in the same way as the password method: users who have set up a second factor (e.g. TOTP or a passkey) must confirm it after the OAuth login. To require a second factor for every OAuth login, enable the `2fa` option of the method:
+
+```php
+'auth' => [
+  'methods' => ['oauth' => ['2fa' => true]],
+],
+```
+
 ## Options
 
 ### General Options
@@ -49,8 +78,8 @@ return [
     // Only allow logins for existing kirby users (don’t create new users)
     'onlyExistingUsers' => false,
 
-    // Set the default role of newly created users.
-    'defaultRole' => 'admin',
+    // Set the default role of newly created users. The role has to exist in `site/blueprints/users`.
+    'defaultRole' => 'editor',
 
     // Allow every valid user of all OAuth providers to login.
     // For details see “Configure Allowed Users” below.
@@ -72,18 +101,24 @@ return [
       // For details see “Configure Allowed Users” below.
     ],
 
-    // Remove the standard Kirby login form and only display OAuth options.
-    'onlyOauth' => false,
-
-    // Automatically login with the first provider. This only works if `onlyOauth` is set to `true` and
-    // only one provider is configured.
-    'autoRedirect' => false
+    // Automatically redirect to the provider. This only works if `oauth` is the only
+    // enabled login method (`'auth' => ['methods' => ['oauth']]`) and only one provider is configured.
+    'autoRedirect' => false,
 
     // Set this to 'true' to disable checking for the 'email_verified' field in the OAuth response. While some providers do not send this information, it is recommended that you keep this option enabled if your provider supports it.
     'skipEmailVerifiedCheck' => false
   ],
 ];
 ```
+
+> [!IMPORTANT]
+> **Upgrading from version 3 (Kirby 4/5):**
+>
+> - The plugin no longer replaces the Panel login screen. Enable the `oauth` login method via `auth.methods` instead (see “Enable the Login Method” above).
+> - The `onlyOauth` option has been removed. Use `'auth' => ['methods' => ['oauth']]` instead.
+> - OAuth logins now trigger Kirby’s second factor if the user has set one up.
+> - The API endpoints `oauth/settings` and `oauth/oauthError` have been removed.
+> - **The default role for newly created users changed from `admin` to `editor`.** Make sure an `editor` role exists in `site/blueprints/users`, or set `'defaultRole' => 'admin'` explicitly to keep the old behaviour. Use the `adminWhitelist` to grant individual users admin access.
 
 > [!IMPORTANT]
 > **Breaking change for Azure Active Directory users:** Previous versions automatically mapped the `upn` claim to the email and treated it as verified. This implicit behaviour has been removed for security reasons (a malicious or misconfigured provider could otherwise claim arbitrary identities via `upn`). If you use Azure AD, you now have to configure this explicitly per provider:
@@ -148,9 +183,9 @@ By default only whitelisted users are allowed to login into the Kirby panel.
 
 **Admin Whitelist:** By adding email addresses to the admin whitelist (`adminWhitelist`) all accounts with a verified email address matching one of the entires are getting the admin role assigned.
 
-**Allow Everyone:** By setting `allowEveryone` to `true` all authenticated accounts are able to login. *Please use this option with care!* You probably want to change the default user role to a more restricted one then the default `admin`.
+**Allow Everyone:** By setting `allowEveryone` to `true` all authenticated accounts are able to login. *Please use this option with care!* Make sure the default role (`defaultRole`, default `editor`) does not grant more permissions than intended.
 
-**Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `admin`. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually whitelist users by changing the role in the Kirby panel.
+**Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `editor`, so make sure an `editor` role exists in `site/blueprints/users` or set `defaultRole` to an existing role. Users on the `adminWhitelist` get the `admin` role instead. The very first user (created during the installation) always becomes an admin. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually whitelist users by changing the role in the Kirby panel.
 
 **Only Existing User:** By setting `onlyExistingUsers` to true only created uses are able to login with an OAuth provider, no new users are created.
 
