@@ -14,3 +14,4 @@
 # .lock files
 composer.lock
 yarn.lock
+package-lock.json
