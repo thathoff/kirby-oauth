@@ -17,4 +17,10 @@ Kirby::plugin('thathoff/oauth', [
     'options' => include(__DIR__ . '/plugin/options.php'),
     'api' => include(__DIR__ . '/plugin/api.php'),
     'translations' => include(__DIR__ . '/plugin/translations.php'),
+    'hooks' => [
+        'system.loadPlugins:after' => function () {
+            // name the login method after the provider if there is only one
+            kirby()->extend(['translations' => Thathoff\Oauth\OauthMethod::translations(kirby())]);
+        },
+    ],
 ]);

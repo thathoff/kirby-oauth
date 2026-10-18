@@ -5,9 +5,11 @@ namespace Thathoff\Oauth;
 use Kirby\Auth\Auth;
 use Kirby\Auth\Method;
 use Kirby\Auth\Status;
+use Kirby\Cms\App;
 use Kirby\Cms\User;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Panel\Ui\Component;
+use Kirby\Toolkit\Str;
 use SensitiveParameter;
 
 /**
@@ -77,11 +79,21 @@ class OauthMethod extends Method
             count($providers) === 1 &&
             empty($error) === true;
 
+        // with a single provider, choosing this method in the method
+        // switcher already is the click on the provider button; the
+        // default method is excluded, otherwise opening the login view
+        // would redirect right away
+        $redirect =
+            count($providers) === 1 &&
+            empty($error) === true &&
+            array_key_first($this->auth->methods()->enabled()) !== static::type();
+
         return new Component(
             component:    'k-login-oauth-method-form',
             providers:    $providers,
             error:        is_string($error) ? $error : null,
             autoRedirect: $autoRedirect,
+            redirect:     $redirect,
         );
     }
 
@@ -104,7 +116,51 @@ class OauthMethod extends Method
 
     public static function icon(): string
     {
-        return 'users';
+        return static::singleProvider(App::instance())?->getIcon() ?? 'users';
+    }
+
+    /**
+     * Returns the method label translations naming the
+     * provider if exactly one is configured
+     *
+     * @return array<string, array<string, string>>
+     */
+    public static function translations(App $kirby): array
+    {
+        $provider = static::singleProvider($kirby);
+
+        if ($provider === null) {
+            return [];
+        }
+
+        $translations = [];
+
+        foreach (include(__DIR__ . '/../plugin/translations.php') as $locale => $strings) {
+            $translations[$locale] = [
+                'login.method.oauth.label' => Str::template(
+                    $strings['thathoff.oauth.loginWith'],
+                    ['name' => $provider->getName()]
+                ),
+            ];
+        }
+
+        return $translations;
+    }
+
+    /**
+     * Returns the provider if exactly one is configured
+     */
+    public static function singleProvider(App $kirby): Provider|null
+    {
+        $providers = new ProvidersManager($kirby);
+
+        if ($providers->count() !== 1) {
+            return null;
+        }
+
+        $provider = $providers->first();
+
+        return $provider instanceof Provider ? $provider : null;
     }
 
     /**

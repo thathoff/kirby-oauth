@@ -21,7 +21,8 @@ export default {
       type: String,
       default: null
     },
-    autoRedirect: Boolean
+    autoRedirect: Boolean,
+    redirect: Boolean
   },
   emits: ["error"],
   data() {
@@ -36,7 +37,7 @@ export default {
       return;
     }
 
-    if (this.autoRedirect && this.providers.length === 1) {
+    if ((this.redirect || this.autoRedirect) && this.providers.length === 1) {
       this.redirecting = true;
       window.location.href = this.providers[0].href;
     }

@@ -49,7 +49,7 @@ return [
 ];
 ```
 
-Kirby shows a switcher on the login screen when more than one method is enabled. The OAuth callback route (see “Redirect URL” below) refuses all logins when the `oauth` method is not enabled.
+Kirby shows a switcher on the login screen when more than one method is enabled. If only one provider is configured, the OAuth button in the switcher uses the name and icon of that provider (e.g. “Login with Google”) and redirects to it right away. The OAuth callback route (see “Redirect URL” below) refuses all logins when the `oauth` method is not enabled.
 
 ### Two-Factor Authentication
 
