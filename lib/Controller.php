@@ -134,7 +134,7 @@ class Controller
 
             if ($createResult === true || $createResult === null) {
                 $onlyExistingUsers = $this->kirby->option('thathoff.oauth.onlyExistingUsers', false);
-                $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'admin');
+                $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'editor');
                 $admins = $this->kirby->option('thathoff.oauth.adminWhitelist', []);
 
                 if ($onlyExistingUsers) {
@@ -149,6 +149,12 @@ class Controller
                 $adminsNormalized = A::map($admins, fn($value) => Str::lower($value));
                 $emailNormalized = Str::lower($email);
                 $role = (!empty($admins) && A::has($adminsNormalized, $emailNormalized)) ? 'admin' : $defaultRole;
+
+                // The first user (installation) always becomes an admin,
+                // otherwise nobody could manage the site afterwards
+                if ($this->kirby->users()->count() === 0) {
+                    $role = 'admin';
+                }
 
                 // Create User
                 $kirbyUser = $this->kirby->impersonate('kirby', function () use ($name, $email, $role) {
