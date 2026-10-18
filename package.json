@@ -1,18 +1,11 @@
 {
   "name": "kirby-oauth",
+  "private": true,
   "scripts": {
-    "dev": "npx -y kirbyup src/index.js --watch",
-    "serve": "npx -y kirbyup serve src/index.js",
-    "build": "npx -y kirbyup src/index.js"
-  },
-  "posthtml": {
-    "recognizeSelfClosing": true
+    "dev": "kirbyup serve src/index.js",
+    "build": "kirbyup src/index.js"
   },
   "devDependencies": {
-    "@vue/component-compiler-utils": "^3.2.0",
-    "parcel-bundler": "^1.12.4",
-    "vue-template-compiler": "^2.6.12",
-    "vue": "^2.7.14",
-    "vue-hot-reload-api": "^2.3.4"
+    "kirbyup": "^4.0.0-beta.1"
   }
 }
