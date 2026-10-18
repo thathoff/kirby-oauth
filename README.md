@@ -78,8 +78,8 @@ return [
     // Only allow logins for existing kirby users (don’t create new users)
     'onlyExistingUsers' => false,
 
-    // Set the default role of newly created users.
-    'defaultRole' => 'admin',
+    // Set the default role of newly created users. The role has to exist in `site/blueprints/users`.
+    'defaultRole' => 'editor',
 
     // Allow every valid user of all OAuth providers to login.
     // For details see “Configure Allowed Users” below.
@@ -118,6 +118,7 @@ return [
 > - The `onlyOauth` option has been removed. Use `'auth' => ['methods' => ['oauth']]` instead.
 > - OAuth logins now trigger Kirby’s second factor if the user has set one up.
 > - The API endpoints `oauth/settings` and `oauth/oauthError` have been removed.
+> - **The default role for newly created users changed from `admin` to `editor`.** Make sure an `editor` role exists in `site/blueprints/users`, or set `'defaultRole' => 'admin'` explicitly to keep the old behaviour. Use the `adminWhitelist` to grant individual users admin access.
 
 > [!IMPORTANT]
 > **Breaking change for Azure Active Directory users:** Previous versions automatically mapped the `upn` claim to the email and treated it as verified. This implicit behaviour has been removed for security reasons (a malicious or misconfigured provider could otherwise claim arbitrary identities via `upn`). If you use Azure AD, you now have to configure this explicitly per provider:
@@ -182,9 +183,9 @@ By default only whitelisted users are allowed to login into the Kirby panel.
 
 **Admin Whitelist:** By adding email addresses to the admin whitelist (`adminWhitelist`) all accounts with a verified email address matching one of the entires are getting the admin role assigned.
 
-**Allow Everyone:** By setting `allowEveryone` to `true` all authenticated accounts are able to login. *Please use this option with care!* You probably want to change the default user role to a more restricted one then the default `admin`.
+**Allow Everyone:** By setting `allowEveryone` to `true` all authenticated accounts are able to login. *Please use this option with care!* Make sure the default role (`defaultRole`, default `editor`) does not grant more permissions than intended.
 
-**Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `admin`. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually whitelist users by changing the role in the Kirby panel.
+**Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `editor`, so make sure an `editor` role exists in `site/blueprints/users` or set `defaultRole` to an existing role. Users on the `adminWhitelist` get the `admin` role instead. The very first user (created during the installation) always becomes an admin. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually whitelist users by changing the role in the Kirby panel.
 
 **Only Existing User:** By setting `onlyExistingUsers` to true only created uses are able to login with an OAuth provider, no new users are created.
 
