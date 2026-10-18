@@ -5,19 +5,24 @@ namespace Thathoff\Oauth;
 return [
     'routes' => [
         [
-            'pattern' => 'oauth/(settings|oauthError)',
+            // provider buttons for the installation view;
+            // only available as long as no user exists
+            'pattern' => 'oauth/installation',
             'auth'    => false,
             'method'  => 'GET',
-            'action'  => function ($method) {
-                $controller = new Controller();
+            'action'  => function () {
+                $kirby = kirby();
 
-                // See plugin/routes.php: the check has to live outside of
-                // Controller, otherwise private methods pass as well.
-                if (is_callable([$controller, $method])) {
-                    return $controller->$method();
+                if ($kirby->users()->count() > 0) {
+                    return ['providers' => [], 'error' => null];
                 }
 
-                return false;
+                $error = $kirby->session()->pull(OauthMethod::SESSION_ERROR);
+
+                return [
+                    'providers' => (new ProvidersManager($kirby))->toPanel(),
+                    'error'     => is_string($error) ? $error : null,
+                ];
             },
         ]
     ]

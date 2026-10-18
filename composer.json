@@ -20,7 +20,7 @@
         "league/oauth2-client": "^2.4"
     },
     "require-dev": {
-        "getkirby/cms": "^4.0 || ^5.0",
+        "getkirby/cms": "^6.0@beta",
         "phpstan/phpstan": "^2.0",
         "squizlabs/php_codesniffer": "^3.10"
     },

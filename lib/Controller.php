@@ -2,9 +2,11 @@
 
 namespace Thathoff\Oauth;
 
+use Kirby\Auth\Status;
 use Kirby\Cms\App;
 use Kirby\Cms\User;
-use Kirby\Http\Uri;
+use Kirby\Exception\NotFoundException;
+use Kirby\Exception\PermissionException;
 use Kirby\Session\Session;
 use Kirby\Toolkit\A;
 use Kirby\Toolkit\Str;
@@ -23,44 +25,22 @@ class Controller
         $this->providers = new ProvidersManager($this->kirby);
     }
 
-    /**
-     * @return array<string, array<string, string|null>>
-     */
-    private function providers(): array
-    {
-        return $this->providers->count() > 0 ?
-            $this->providers->toArray(
-                function ($provider) {
-                    return [
-                        'id'   => $provider->getId(),
-                        'name' => $provider->getName(),
-                        'href' => new Uri('oauth/login') . '/' . $provider->getId(),
-                        'icon' => $provider->getIcon(),
-                        'theme' => $provider->getTheme(),
-                    ];
-                }
-            )
-            : [];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function settings(): array
-    {
-        $onlyOauth = $this->kirby->option('thathoff.oauth.onlyOauth', false);
-        $autoRedirect = $onlyOauth && $this->kirby->option('thathoff.oauth.autoRedirect', false);
-
-        return [
-            'onlyOauth' => $onlyOauth,
-            'autoRedirect' => $autoRedirect,
-            'enabled' => count($this->providers) > 0,
-            'providers' => $this->providers(),
-        ];
-    }
-
     public function login(?string $provider = null): void
     {
+        $auth = $this->kirby->auth();
+
+        // the OAuth login is only available if enabled via `auth.methods`
+        if ($auth->methods()->has('oauth') === false) {
+            throw new NotFoundException(message: 'OAuth login is not enabled');
+        }
+
+        // reject blocked IPs before contacting the provider
+        try {
+            $auth->limits()->ensure();
+        } catch (PermissionException $e) {
+            $this->error($e->getMessage());
+        }
+
         if ($provider === null) {
             $this->error("Oauth Provider not found!");
         }
@@ -113,19 +93,6 @@ class Controller
         }
 
         $this->error();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function oauthError(): array
-    {
-        $error = $this->session->data()->get('oauthError');
-        $this->session->data()->remove('oauthError');
-
-        return [
-            'msg' => $error
-        ];
     }
 
     private function loginUser(ResourceOwnerInterface $oauthUser, Provider $provider): void
@@ -209,7 +176,19 @@ class Controller
         }
 
         $this->kirby->trigger('thathoff.oauth.login:before', ['oauthUser' => $oauthUser, 'user' => $kirbyUser]);
-        $kirbyUser->loginPasswordless();
+
+        $method = $this->kirby->auth()->methods()->get('oauth');
+        $result = $method instanceof OauthMethod ? $method->complete($kirbyUser) : null;
+
+        // a second factor is required: continue with Kirby's challenge form
+        if ($result instanceof Status) {
+            go($this->kirby->url('panel') . '/login/challenge/' . $result->challenge());
+        }
+
+        if (!$result instanceof User) {
+            $this->error();
+        }
+
         $this->kirby->trigger('thathoff.oauth.login:after', ['oauthUser' => $oauthUser, 'user' => $kirbyUser,]);
 
         $this->goToPanel();
@@ -247,12 +226,12 @@ class Controller
 
     private function error(?string $message = null): never
     {
-        $this->session->data()->set("oauthError", $message);
-        go($this->kirby->url('panel') . '/login');
+        $this->session->set(OauthMethod::SESSION_ERROR, $message ?? 'OAuth login failed!');
+        go($this->kirby->url('panel') . '/login/method/oauth');
     }
 
     private function goToPanel(): never
     {
-        go((string)$this->kirby->url('panel'));
+        go($this->kirby->panel()->home()->url());
     }
 }
