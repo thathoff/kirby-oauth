@@ -1,11 +1,9 @@
-// add this to support async/await
-import 'regenerator-runtime/runtime'
-import LoginScreen from "./components/LoginScreen.vue";
+import LoginOauthMethodForm from "./components/LoginOauthMethodForm.vue";
 import InstallationView from "./components/InstallationView.vue";
 
 panel.plugin("thathoff/oauth", {
-  login: LoginScreen,
   components: {
-    'k-installation-view': InstallationView
+    "k-installation-view": InstallationView,
+    "k-login-oauth-method-form": LoginOauthMethodForm
   }
 });

@@ -6,7 +6,8 @@ This plugin is an plugin to provide [OAuth 2.0](http://oauth.net/2/) support for
 
 ## Kirby Compatibility
 
-- For **Kirby 4 and up** use version 3.0.0 or higher
+- For **Kirby 6 and up** use version 4.0.0 or higher
+- For **Kirby 4 and 5** use version 3
 - For **Kirby 3.6 - 3.9** use version 2 or higher
 - For **Kirby 3.0 - 3.6** use version 1 (not maintained anymore)
 
@@ -30,6 +31,34 @@ For example to install support for Google run:
 
 ```sh
 composer require league/oauth2-google
+```
+
+## Enable the Login Method
+
+Since Kirby 6 the plugin registers a regular [auth method](https://getkirby.com/releases/6/migration/plugin-developers/auth) named `oauth`. Enable it with Kirby’s `auth.methods` option in your `config.php`:
+
+```php
+return [
+  'auth' => [
+    // OAuth in addition to the standard password login
+    'methods' => ['password', 'oauth'],
+
+    // or: only allow OAuth logins
+    // 'methods' => ['oauth'],
+  ],
+];
+```
+
+Kirby shows a switcher on the login screen when more than one method is enabled. The OAuth callback route (see “Redirect URL” below) refuses all logins when the `oauth` method is not enabled.
+
+### Two-Factor Authentication
+
+OAuth logins respect Kirby’s second factors in the same way as the password method: users who have set up a second factor (e.g. TOTP or a passkey) must confirm it after the OAuth login. To require a second factor for every OAuth login, enable the `2fa` option of the method:
+
+```php
+'auth' => [
+  'methods' => ['oauth' => ['2fa' => true]],
+],
 ```
 
 ## Options
@@ -72,18 +101,23 @@ return [
       // For details see “Configure Allowed Users” below.
     ],
 
-    // Remove the standard Kirby login form and only display OAuth options.
-    'onlyOauth' => false,
-
-    // Automatically login with the first provider. This only works if `onlyOauth` is set to `true` and
-    // only one provider is configured.
-    'autoRedirect' => false
+    // Automatically redirect to the provider. This only works if `oauth` is the only
+    // enabled login method (`'auth' => ['methods' => ['oauth']]`) and only one provider is configured.
+    'autoRedirect' => false,
 
     // Set this to 'true' to disable checking for the 'email_verified' field in the OAuth response. While some providers do not send this information, it is recommended that you keep this option enabled if your provider supports it.
     'skipEmailVerifiedCheck' => false
   ],
 ];
 ```
+
+> [!IMPORTANT]
+> **Upgrading from version 3 (Kirby 4/5):**
+>
+> - The plugin no longer replaces the Panel login screen. Enable the `oauth` login method via `auth.methods` instead (see “Enable the Login Method” above).
+> - The `onlyOauth` option has been removed. Use `'auth' => ['methods' => ['oauth']]` instead.
+> - OAuth logins now trigger Kirby’s second factor if the user has set one up.
+> - The API endpoints `oauth/settings` and `oauth/oauthError` have been removed.
 
 > [!IMPORTANT]
 > **Breaking change for Azure Active Directory users:** Previous versions automatically mapped the `upn` claim to the email and treated it as verified. This implicit behaviour has been removed for security reasons (a malicious or misconfigured provider could otherwise claim arbitrary identities via `upn`). If you use Azure AD, you now have to configure this explicitly per provider:
