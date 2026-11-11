@@ -77,10 +77,10 @@ return [
 
     // Automatically login with the first provider. This only works if `onlyOauth` is set to `true` and
     // only one provider is configured.
-    'autoRedirect' => false
+    'autoRedirect' => false,
 
     // Set this to 'true' to disable checking for the 'email_verified' field in the OAuth response. While some providers do not send this information, it is recommended that you keep this option enabled if your provider supports it.
-    'skipEmailVerifiedCheck' => false
+    'skipEmailVerifiedCheck' => false,
   ],
 ];
 ```
@@ -110,13 +110,13 @@ Additionally the two properties `name` and `class` are supported to supply a dis
     'class' => "League\OAuth2\Client\Provider\Google",  // Use special google class from league/oauth2-google
     'clientId' => 'somerandomstring.apps.googleusercontent.com',
     'clientSecret' => 'clientsecret',
-    'hostedDomain' => 'example.com'  // Restrict users to an `@example.com` google account (optional)
-    'icon'         => 'users'  // Pick any default Kirby icon for the login button (optional)
-    'theme'        => 'green'  // Pick any  Kirby theme colors (see https://lab.getkirby.com/public/lab/components/buttons/2_themes)
+    'hostedDomain' => 'example.com',  // Restrict users to an `@example.com` google account (optional)
+    'icon'         => 'users',  // Pick any default Kirby icon for the login button (optional)
+    'theme'        => 'green',  // Pick any  Kirby theme colors (see https://lab.getkirby.com/public/lab/components/buttons/2_themes)
   ],
   'custom' => [
     // this one uses \League\OAuth2\Client\Provider\GenericProvider automatically
-    'name'                    => 'My Custom Provider' // The name is optional
+    'name'                    => 'My Custom Provider', // The name is optional
     'clientId'                => 'demoapp',    // The client ID assigned to you by the provider
     'clientSecret'            => 'demopass',   // The client password assigned to you by the provider
     'redirectUri'             => 'https://kirby.example.com/your-redirect-url/',
@@ -124,7 +124,7 @@ Additionally the two properties `name` and `class` are supported to supply a dis
     'urlAccessToken'          => 'https://example.com/oauth2/lockdin/token',
     'urlResourceOwnerDetails' => 'https://example.com/oauth2/lockdin/resource',
     'icon'                    => 'users',  // Pick any default Kirby icon for the login button (optional)
-    'theme'                   => 'green'  // Pick any  Kirby theme colors (see https://lab.getkirby.com/public/lab/components/buttons/2_themes)
+    'theme'                   => 'green',  // Pick any  Kirby theme colors (see https://lab.getkirby.com/public/lab/components/buttons/2_themes)
     'scope'                   => 'openid email profile',  //specify the scope passed form the OIDC provider to kirby
     'emailField'              => 'email',  // Field in the provider's user data that contains the email address (default: "email"). Use "upn" for Azure AD.
     'emailVerified'           => null,  // Override the email_verified claim: true treats the provider as always verifying emails, false as never. null (default) trusts the email_verified claim from the provider.
@@ -177,6 +177,6 @@ Before and after the KirbyUser gets created or logged in a hook is triggered.
     },
     'thathoff.oauth.login:after' => function ($oauthUser, $user) {
 
-    }
+    },
 ]
 ```
