@@ -2,12 +2,15 @@
 
 return [
     'providers' => null,
-    'defaultRole' => null,
-    'domainWhitelist' => null,
-    'emailWhitelist' => null,
-    'adminWhitelist' => null,
-    'onlyOauth' => null,
+    'defaultRole' => 'editor',
+    'domainAllowlist' => null,
+    'emailAllowlist' => null,
+    'adminAllowlist' => null,
     'onlyExistingUsers' => null,
     'allowEveryone' => null,
-    'scope' => null
+    'autoRedirect' => false,
+    'skipEmailVerifiedCheck' => false,
+    'scope' => null,
+    'label' => null,
+    'icon' => null
 ];

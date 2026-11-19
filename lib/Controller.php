@@ -2,9 +2,11 @@
 
 namespace Thathoff\Oauth;
 
+use Kirby\Auth\Status;
 use Kirby\Cms\App;
 use Kirby\Cms\User;
-use Kirby\Http\Uri;
+use Kirby\Exception\NotFoundException;
+use Kirby\Exception\PermissionException;
 use Kirby\Session\Session;
 use Kirby\Toolkit\A;
 use Kirby\Toolkit\Str;
@@ -23,44 +25,22 @@ class Controller
         $this->providers = new ProvidersManager($this->kirby);
     }
 
-    /**
-     * @return array<string, array<string, string|null>>
-     */
-    private function providers(): array
-    {
-        return $this->providers->count() > 0 ?
-            $this->providers->toArray(
-                function ($provider) {
-                    return [
-                        'id'   => $provider->getId(),
-                        'name' => $provider->getName(),
-                        'href' => new Uri('oauth/login') . '/' . $provider->getId(),
-                        'icon' => $provider->getIcon(),
-                        'theme' => $provider->getTheme(),
-                    ];
-                }
-            )
-            : [];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function settings(): array
-    {
-        $onlyOauth = $this->kirby->option('thathoff.oauth.onlyOauth', false);
-        $autoRedirect = $onlyOauth && $this->kirby->option('thathoff.oauth.autoRedirect', false);
-
-        return [
-            'onlyOauth' => $onlyOauth,
-            'autoRedirect' => $autoRedirect,
-            'enabled' => count($this->providers) > 0,
-            'providers' => $this->providers(),
-        ];
-    }
-
     public function login(?string $provider = null): void
     {
+        $auth = $this->kirby->auth();
+
+        // the OAuth login is only available if enabled via `auth.methods`
+        if ($auth->methods()->has('oauth') === false) {
+            throw new NotFoundException(message: 'OAuth login is not enabled');
+        }
+
+        // reject blocked IPs before contacting the provider
+        try {
+            $auth->limits()->ensure();
+        } catch (PermissionException $e) {
+            $this->error($e->getMessage());
+        }
+
         if ($provider === null) {
             $this->error("Oauth Provider not found!");
         }
@@ -115,19 +95,6 @@ class Controller
         $this->error();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function oauthError(): array
-    {
-        $error = $this->session->data()->get('oauthError');
-        $this->session->data()->remove('oauthError');
-
-        return [
-            'msg' => $error
-        ];
-    }
-
     private function loginUser(ResourceOwnerInterface $oauthUser, Provider $provider): void
     {
         $oauthUserData = $oauthUser->toArray();
@@ -167,21 +134,29 @@ class Controller
 
             if ($createResult === true || $createResult === null) {
                 $onlyExistingUsers = $this->kirby->option('thathoff.oauth.onlyExistingUsers', false);
-                $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'admin');
-                $admins = $this->kirby->option('thathoff.oauth.adminWhitelist', []);
+                $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'editor');
+                $admins = $this->kirby->option('thathoff.oauth.adminAllowlist', []);
 
                 if ($onlyExistingUsers) {
                     $this->error("User missing and creating users is disabled!");
                 }
 
-                if (!$this->checkWhiteLists($email)) {
+                if (!$this->checkAllowlists($email)) {
                     $this->error("Access denied for $email.");
                 }
 
                 // Normalize values to be Case-Insensitive
-                $adminsNormalized = A::map($admins, fn($value) => Str::lower($value));
+                $adminsNormalized = is_array($admins)
+                    ? A::map($admins, fn($value) => Str::lower($value))
+                    : [];
                 $emailNormalized = Str::lower($email);
                 $role = (!empty($admins) && A::has($adminsNormalized, $emailNormalized)) ? 'admin' : $defaultRole;
+
+                // The first user (installation) always becomes an admin,
+                // otherwise nobody could manage the site afterwards
+                if ($this->kirby->users()->count() === 0) {
+                    $role = 'admin';
+                }
 
                 // Create User
                 $kirbyUser = $this->kirby->impersonate('kirby', function () use ($name, $email, $role) {
@@ -209,16 +184,28 @@ class Controller
         }
 
         $this->kirby->trigger('thathoff.oauth.login:before', ['oauthUser' => $oauthUser, 'user' => $kirbyUser]);
-        $kirbyUser->loginPasswordless();
+
+        $method = $this->kirby->auth()->methods()->get('oauth');
+        $result = $method instanceof OauthMethod ? $method->complete($kirbyUser) : null;
+
+        // a second factor is required: continue with Kirby's challenge form
+        if ($result instanceof Status) {
+            go($this->kirby->url('panel') . '/login/challenge/' . $result->challenge());
+        }
+
+        if (!$result instanceof User) {
+            $this->error();
+        }
+
         $this->kirby->trigger('thathoff.oauth.login:after', ['oauthUser' => $oauthUser, 'user' => $kirbyUser,]);
 
         $this->goToPanel();
     }
 
-    private function checkWhiteLists(string $email): bool
+    private function checkAllowlists(string $email): bool
     {
-        $domainWhitelist = $this->kirby->option('thathoff.oauth.domainWhitelist', []);
-        $emailWhitelist = $this->kirby->option('thathoff.oauth.emailWhitelist', []);
+        $domainAllowlist = $this->kirby->option('thathoff.oauth.domainAllowlist', []);
+        $emailAllowlist = $this->kirby->option('thathoff.oauth.emailAllowlist', []);
         $allowEveryone = $this->kirby->option('thathoff.oauth.allowEveryone', false);
 
         if ($allowEveryone) {
@@ -227,17 +214,17 @@ class Controller
 
         $emailNormalized = Str::lower($email);
 
-        if (is_array($emailWhitelist)) {
-            $emailWhitelistNormalized = A::map($emailWhitelist, fn($value) => Str::lower($value));
-            if (in_array($emailNormalized, $emailWhitelistNormalized, true)) {
+        if (is_array($emailAllowlist)) {
+            $emailAllowlistNormalized = A::map($emailAllowlist, fn($value) => Str::lower($value));
+            if (in_array($emailNormalized, $emailAllowlistNormalized, true)) {
                 return true;
             }
         }
 
         $domain = Str::lower(substr($email, strpos($email, "@") + 1));
-        if (is_array($domainWhitelist)) {
-            $domainWhitelistNormalized = A::map($domainWhitelist, fn($value) => Str::lower($value));
-            if (in_array($domain, $domainWhitelistNormalized, true)) {
+        if (is_array($domainAllowlist)) {
+            $domainAllowlistNormalized = A::map($domainAllowlist, fn($value) => Str::lower($value));
+            if (in_array($domain, $domainAllowlistNormalized, true)) {
                 return true;
             }
         }
@@ -247,12 +234,12 @@ class Controller
 
     private function error(?string $message = null): never
     {
-        $this->session->data()->set("oauthError", $message);
-        go($this->kirby->url('panel') . '/login');
+        $this->session->set(OauthMethod::SESSION_ERROR, $message ?? 'OAuth login failed!');
+        go($this->kirby->url('panel') . '/login/method/oauth');
     }
 
     private function goToPanel(): never
     {
-        go((string)$this->kirby->url('panel'));
+        go($this->kirby->panel()->home()->url());
     }
 }
