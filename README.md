@@ -61,6 +61,21 @@ OAuth logins respect Kirby’s second factors in the same way as the password me
 ],
 ```
 
+### Single Provider and Automatic Redirect
+
+If only one provider is configured, the `oauth` method is shown as “Login with &lt;provider name&gt;” with the provider’s icon in the login method switcher (instead of the `label` and `icon` options).
+
+The login screen redirects to the provider without showing the OAuth login button when:
+
+- the `oauth` method is selected in the login method switcher (e.g. switching from the password form to “Login with Google”), regardless of the `autoRedirect` option, or
+- `autoRedirect` is enabled and `oauth` is the only enabled login method. In this case, the redirect also happens on every visit of the login screen, including after a logout.
+
+There is no automatic redirect
+
+- when more than one provider is configured,
+- when the OAuth login failed (the error is shown on the login screen instead) or
+- when the login screen is opened directly, after a logout or after the session expired while other login methods are enabled, so that these methods stay reachable.
+
 ## Options
 
 ### General Options
@@ -101,8 +116,9 @@ return [
       // For details see “Configure Allowed Users” below.
     ],
 
-    // Automatically redirect to the provider. This only works if `oauth` is the only
-    // enabled login method (`'auth' => ['methods' => ['oauth']]`) and only one provider is configured.
+    // Automatically redirect to the provider when the login screen is opened. This only works if
+    // `oauth` is the only enabled login method (`'auth' => ['methods' => ['oauth']]`) and only one
+    // provider is configured. For details see “Single Provider and Automatic Redirect” below.
     'autoRedirect' => false,
 
     // Set this to 'true' to disable checking for the 'email_verified' field in the OAuth response. While some providers do not send this information, it is recommended that you keep this option enabled if your provider supports it.
