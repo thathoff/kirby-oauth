@@ -110,7 +110,7 @@ return [
 
     // Label of the `oauth` method in the login method switcher (default: “OAuth”).
     // Either a string or an array of translations, e.g. ['en' => 'Single Sign-On', 'de' => 'Single Sign-On']
-    // If only one provider is configured, the provider’s name is used instead.
+    // If only one provider is configured, “Login with <provider name>” is used instead.
     'label' => null,
 
     // Icon of the `oauth` method in the login method switcher (default: 'users').

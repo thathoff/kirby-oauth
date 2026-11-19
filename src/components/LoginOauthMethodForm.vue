@@ -1,6 +1,8 @@
 <template>
   <div class="k-login-form k-login-oauth-method-form">
-    <p v-if="redirecting">{{ $t("thathoff.oauth.autoLoggingIn") }}</p>
+    <p v-if="redirecting">
+      {{ $t("thathoff.oauth.autoLoggingIn", { provider: providers[0].name }) }}
+    </p>
     <OAuth v-else :providers="providers" />
   </div>
 </template>

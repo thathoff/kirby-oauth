@@ -4,11 +4,13 @@ return [
     'de' => [
         'login.method.oauth.label' => 'OAuth',
         'thathoff.oauth.signInWith' => 'Anmelden mit…',
-        'thathoff.oauth.autoLoggingIn' => 'Automatische Anmeldung mit OAuth...'
+        'thathoff.oauth.loginWithProvider' => 'Anmelden mit {provider}',
+        'thathoff.oauth.autoLoggingIn' => 'Automatische Anmeldung mit {provider}…'
     ],
     'en' => [
         'login.method.oauth.label' => 'OAuth',
-        'thathoff.oauth.signInWith' => 'Sign in with…',
-        'thathoff.oauth.autoLoggingIn' => 'Automatically signing in with OAuth...'
+        'thathoff.oauth.signInWith' => 'Login with…',
+        'thathoff.oauth.loginWithProvider' => 'Login with {provider}',
+        'thathoff.oauth.autoLoggingIn' => 'Automatically logging in with {provider}…'
     ]
 ];
