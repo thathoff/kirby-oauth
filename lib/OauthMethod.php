@@ -104,7 +104,24 @@ class OauthMethod extends Method
 
     public function icon(): string
     {
-        return 'users';
+        $icon = $this->auth->kirby()->option('thathoff.oauth.icon');
+
+        return is_string($icon) && $icon !== '' ? $icon : 'users';
+    }
+
+    /**
+     * Uses the `thathoff.oauth.label` option (string or
+     * translations array) if set, otherwise the default label
+     */
+    public function label(): string
+    {
+        $label = $this->auth->kirby()->option('thathoff.oauth.label');
+
+        if (empty($label) === false && (is_string($label) || is_array($label))) {
+            return static::i18n($label);
+        }
+
+        return parent::label();
     }
 
     public function isEnabled(): bool
