@@ -135,13 +135,13 @@ class Controller
             if ($createResult === true || $createResult === null) {
                 $onlyExistingUsers = $this->kirby->option('thathoff.oauth.onlyExistingUsers', false);
                 $defaultRole = $this->kirby->option('thathoff.oauth.defaultRole', 'editor');
-                $admins = $this->kirby->option('thathoff.oauth.adminWhitelist', []);
+                $admins = $this->kirby->option('thathoff.oauth.adminAllowlist', []);
 
                 if ($onlyExistingUsers) {
                     $this->error("User missing and creating users is disabled!");
                 }
 
-                if (!$this->checkWhiteLists($email)) {
+                if (!$this->checkAllowlists($email)) {
                     $this->error("Access denied for $email.");
                 }
 
@@ -202,10 +202,10 @@ class Controller
         $this->goToPanel();
     }
 
-    private function checkWhiteLists(string $email): bool
+    private function checkAllowlists(string $email): bool
     {
-        $domainWhitelist = $this->kirby->option('thathoff.oauth.domainWhitelist', []);
-        $emailWhitelist = $this->kirby->option('thathoff.oauth.emailWhitelist', []);
+        $domainAllowlist = $this->kirby->option('thathoff.oauth.domainAllowlist', []);
+        $emailAllowlist = $this->kirby->option('thathoff.oauth.emailAllowlist', []);
         $allowEveryone = $this->kirby->option('thathoff.oauth.allowEveryone', false);
 
         if ($allowEveryone) {
@@ -214,17 +214,17 @@ class Controller
 
         $emailNormalized = Str::lower($email);
 
-        if (is_array($emailWhitelist)) {
-            $emailWhitelistNormalized = A::map($emailWhitelist, fn($value) => Str::lower($value));
-            if (in_array($emailNormalized, $emailWhitelistNormalized, true)) {
+        if (is_array($emailAllowlist)) {
+            $emailAllowlistNormalized = A::map($emailAllowlist, fn($value) => Str::lower($value));
+            if (in_array($emailNormalized, $emailAllowlistNormalized, true)) {
                 return true;
             }
         }
 
         $domain = Str::lower(substr($email, strpos($email, "@") + 1));
-        if (is_array($domainWhitelist)) {
-            $domainWhitelistNormalized = A::map($domainWhitelist, fn($value) => Str::lower($value));
-            if (in_array($domain, $domainWhitelistNormalized, true)) {
+        if (is_array($domainAllowlist)) {
+            $domainAllowlistNormalized = A::map($domainAllowlist, fn($value) => Str::lower($value));
+            if (in_array($domain, $domainAllowlistNormalized, true)) {
                 return true;
             }
         }
