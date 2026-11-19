@@ -102,17 +102,17 @@ return [
     'allowEveryone' => false,
 
     // List of E-mail domains which are allowed to login
-    'domainWhitelist' => [
+    'domainAllowlist' => [
       // For details see “Configure Allowed Users” below.
     ],
 
     // List of E-mail addresses which are allowed to login
-    'emailWhitelist' => [
+    'emailAllowlist' => [
       // For details see “Configure Allowed Users” below.
     ],
 
     // List of E-mail addresses which will get the admin role assigned
-    'adminWhitelist' => [
+    'adminAllowlist' => [
       // For details see “Configure Allowed Users” below.
     ],
 
@@ -144,7 +144,8 @@ return [
 > - The `onlyOauth` option has been removed. Use `'auth' => ['methods' => ['oauth']]` instead.
 > - OAuth logins now trigger Kirby’s second factor if the user has set one up.
 > - The API endpoints `oauth/settings` and `oauth/oauthError` have been removed.
-> - **The default role for newly created users changed from `admin` to `editor`.** Make sure an `editor` role exists in `site/blueprints/users`, or set `'defaultRole' => 'admin'` explicitly to keep the old behaviour. Use the `adminWhitelist` to grant individual users admin access.
+> - **The options `domainWhitelist`, `emailWhitelist` and `adminWhitelist` have been renamed to `domainAllowlist`, `emailAllowlist` and `adminAllowlist`.** The old option names are no longer read, so rename them in your `config.php`.
+> - **The default role for newly created users changed from `admin` to `editor`.** Make sure an `editor` role exists in `site/blueprints/users`, or set `'defaultRole' => 'admin'` explicitly to keep the old behaviour. Use the `adminAllowlist` to grant individual users admin access.
 
 > [!IMPORTANT]
 > **Breaking change for Azure Active Directory users:** Previous versions automatically mapped the `upn` claim to the email and treated it as verified. This implicit behaviour has been removed for security reasons (a malicious or misconfigured provider could otherwise claim arbitrary identities via `upn`). If you use Azure AD, you now have to configure this explicitly per provider:
@@ -201,17 +202,17 @@ installed Kirby in a subdirectory, remember to include the subdirectory in the U
 
 ### Configure Allowed Users
 
-By default only whitelisted users are allowed to login into the Kirby panel.
+By default only allowlisted users are allowed to login into the Kirby panel.
 
-**Domain Whitelist:** By adding domains to the domain whitelist (`domainWhitelist`) all accounts with a verified email address at one of the domains are permitted.
+**Domain Allowlist:** By adding domains to the domain allowlist (`domainAllowlist`) all accounts with a verified email address at one of the domains are permitted.
 
-**Email Whitelist:** By adding email addresses to the email whitelist (`emailWhitelist`) all accounts with a verified email address matching one of the entires are permitted.
+**Email Allowlist:** By adding email addresses to the email allowlist (`emailAllowlist`) all accounts with a verified email address matching one of the entires are permitted.
 
-**Admin Whitelist:** By adding email addresses to the admin whitelist (`adminWhitelist`) all accounts with a verified email address matching one of the entires are getting the admin role assigned.
+**Admin Allowlist:** By adding email addresses to the admin allowlist (`adminAllowlist`) all accounts with a verified email address matching one of the entires are getting the admin role assigned.
 
 **Allow Everyone:** By setting `allowEveryone` to `true` all authenticated accounts are able to login. *Please use this option with care!* Make sure the default role (`defaultRole`, default `editor`) does not grant more permissions than intended.
 
-**Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `editor`, so make sure an `editor` role exists in `site/blueprints/users` or set `defaultRole` to an existing role. Users on the `adminWhitelist` get the `admin` role instead. The very first user (created during the installation) always becomes an admin. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually whitelist users by changing the role in the Kirby panel.
+**Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `editor`, so make sure an `editor` role exists in `site/blueprints/users` or set `defaultRole` to an existing role. Users on the `adminAllowlist` get the `admin` role instead. The very first user (created during the installation) always becomes an admin. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually allow users by changing the role in the Kirby panel.
 
 **Only Existing User:** By setting `onlyExistingUsers` to true only created uses are able to login with an OAuth provider, no new users are created.
 
