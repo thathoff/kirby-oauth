@@ -110,10 +110,12 @@ return [
 
     // Label of the `oauth` method in the login method switcher (default: “OAuth”).
     // Either a string or an array of translations, e.g. ['en' => 'Single Sign-On', 'de' => 'Single Sign-On']
+    // If only one provider is configured, the provider’s name is used instead.
     'label' => null,
 
     // Icon of the `oauth` method in the login method switcher (default: 'users').
     // Pick any default Kirby icon.
+    // If only one provider is configured, the provider’s icon is used instead (if set).
     'icon' => null
   ],
 ];
