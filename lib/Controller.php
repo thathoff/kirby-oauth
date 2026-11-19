@@ -17,6 +17,7 @@ class Controller
     private App $kirby;
     private ProvidersManager $providers;
     private Session $session;
+    private ?OauthMethod $method = null;
 
     public function __construct()
     {
@@ -28,11 +29,16 @@ class Controller
     public function login(?string $provider = null): void
     {
         $auth = $this->kirby->auth();
+        $type = OauthMethod::typeFor($provider ?? '');
 
-        // the OAuth login is only available if enabled via `auth.methods`
-        if ($auth->methods()->has('oauth') === false) {
+        // the provider is only available if its login method
+        // is enabled via `auth.methods`
+        $method = $auth->methods()->has($type) ? $auth->methods()->get($type) : null;
+        if (!$method instanceof OauthMethod) {
             throw new NotFoundException(message: 'OAuth login is not enabled');
         }
+
+        $this->method = $method;
 
         // reject blocked IPs before contacting the provider
         try {
@@ -183,8 +189,7 @@ class Controller
 
         $this->kirby->trigger('thathoff.oauth.login:before', ['oauthUser' => $oauthUser, 'user' => $kirbyUser]);
 
-        $method = $this->kirby->auth()->methods()->get('oauth');
-        $result = $method instanceof OauthMethod ? $method->complete($kirbyUser) : null;
+        $result = $this->method?->complete($kirbyUser);
 
         // a second factor is required: continue with Kirby's challenge form
         if ($result instanceof Status) {
@@ -233,7 +238,8 @@ class Controller
     private function error(?string $message = null): never
     {
         $this->session->set(OauthMethod::SESSION_ERROR, $message ?? 'OAuth login failed!');
-        go($this->kirby->url('panel') . '/login/method/oauth');
+        $path = $this->method !== null ? '/login/method/' . $this->method->type() : '/login';
+        go($this->kirby->url('panel') . $path);
     }
 
     private function goToPanel(): never

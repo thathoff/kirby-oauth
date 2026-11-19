@@ -40,20 +40,30 @@ class ProvidersManager extends Collection
     }
 
     /**
-     * Returns the provider data needed for the Panel login buttons
+     * Returns the data needed for a Panel login button
+     *
+     * @return array<string, string|null>
+     */
+    public static function toPanelItem(App $kirby, Provider $provider): array
+    {
+        return [
+            'id'    => $provider->getId(),
+            'name'  => $provider->getName(),
+            'href'  => static::loginUrl($kirby, $provider->getId()),
+            'icon'  => $provider->getIcon(),
+            'theme' => $provider->getTheme(),
+        ];
+    }
+
+    /**
+     * Returns the data needed for the Panel login buttons
      *
      * @return array<int, array<string, string|null>>
      */
     public function toPanel(): array
     {
         return array_values($this->toArray(
-            fn (Provider $provider) => [
-                'id'    => $provider->getId(),
-                'name'  => $provider->getName(),
-                'href'  => static::loginUrl($this->kirby, $provider->getId()),
-                'icon'  => $provider->getIcon(),
-                'theme' => $provider->getTheme(),
-            ]
+            fn (Provider $provider) => static::toPanelItem($this->kirby, $provider)
         ));
     }
 }

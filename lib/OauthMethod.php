@@ -2,17 +2,18 @@
 
 namespace Thathoff\Oauth;
 
-use Kirby\Auth\Auth;
 use Kirby\Auth\Method;
 use Kirby\Auth\Status;
 use Kirby\Cms\User;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Panel\Ui\Component;
+use Kirby\Toolkit\Str;
 use SensitiveParameter;
 
 /**
  * Kirby auth method for OAuth 2.0 logins
  *
+ * The method is registered once per provider as `oauth-<id>`.
  * The login itself is redirect-based and handled by the
  * `oauth/login/(:any)` route (see Controller); this class
  * provides the Panel login form and finishes the login
@@ -22,6 +23,9 @@ use SensitiveParameter;
 class OauthMethod extends Method
 {
     public const SESSION_ERROR = 'thathoff.oauth.error';
+    public const TYPE_PREFIX = 'oauth-';
+
+    private Provider|null|false $provider = false;
 
     /**
      * OAuth logins are not submitted via the Panel login form
@@ -66,22 +70,30 @@ class OauthMethod extends Method
 
     public function form(): Component
     {
-        $kirby     = $this->auth->kirby();
-        $providers = (new ProvidersManager($kirby))->toPanel();
-        $error     = $kirby->session()->pull(static::SESSION_ERROR);
+        $kirby    = $this->auth->kirby();
+        $provider = $this->provider();
+        $error    = $kirby->session()->pull(static::SESSION_ERROR);
+        $methods  = $this->auth->methods()->enabled();
 
-        // only redirect automatically when there is no other way to log in
-        $autoRedirect =
-            $kirby->option('thathoff.oauth.autoRedirect', false) === true &&
-            count($this->auth->methods()->enabled()) === 1 &&
-            count($providers) === 1 &&
-            empty($error) === true;
+        // choosing this method in the method switcher already is the click
+        // on the provider button, so redirect right away; except for the
+        // default method, otherwise opening the login view would redirect,
+        // unless `autoRedirect` is enabled and there is no other way to log in
+        $redirect =
+            empty($error) === true &&
+            (
+                array_key_first($methods) !== $this->type() ||
+                (
+                    $kirby->option('thathoff.oauth.autoRedirect', false) === true &&
+                    count($methods) === 1
+                )
+            );
 
         return new Component(
-            component:    'k-login-oauth-method-form',
-            providers:    $providers,
-            error:        is_string($error) ? $error : null,
-            autoRedirect: $autoRedirect,
+            component: 'k-login-oauth-method-form',
+            provider:  $provider !== null ? ProvidersManager::toPanelItem($kirby, $provider) : null,
+            error:     is_string($error) ? $error : null,
+            redirect:  $redirect,
         );
     }
 
@@ -102,16 +114,66 @@ class OauthMethod extends Method
         return $this->auth->challenges()->hasAvailable($user, '2fa');
     }
 
-    public static function icon(): string
+    public function icon(): string
     {
-        return 'users';
+        return $this->provider()?->getIcon() ?? 'users';
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->provider() !== null;
+    }
+
+    public function label(): string
+    {
+        return static::i18n('thathoff.oauth.loginWith', [
+            'name' => $this->provider()?->getName() ?? $this->type()
+        ]);
     }
 
     /**
-     * @param array<string, mixed> $options
+     * Returns the OAuth provider of this method
      */
-    public static function isEnabled(Auth $auth, array $options = []): bool
+    public function provider(): Provider|null
     {
-        return (new ProvidersManager($auth->kirby()))->count() > 0;
+        if ($this->provider === false) {
+            $id = Str::after($this->type(), static::TYPE_PREFIX);
+            $provider = (new ProvidersManager($this->auth->kirby()))->get($id);
+            $this->provider = $provider instanceof Provider ? $provider : null;
+        }
+
+        return $this->provider;
+    }
+
+    /**
+     * Returns the method type for a provider id
+     */
+    public static function typeFor(string $provider): string
+    {
+        return static::TYPE_PREFIX . $provider;
+    }
+
+    /**
+     * Returns the auth method types to register,
+     * one for each configured provider
+     *
+     * @return array<string, class-string<static>>
+     */
+    public static function types(mixed $providers): array
+    {
+        $types = [];
+
+        if (is_array($providers) === false) {
+            return $types;
+        }
+
+        foreach (array_keys($providers) as $id) {
+            // the id is used in URLs and as method type
+            if (is_string($id) === true && preg_match('/^[a-z0-9_-]+$/i', $id) === 1) {
+                $types[static::typeFor($id)] = static::class;
+            }
+        }
+
+        return $types;
     }
 }

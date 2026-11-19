@@ -1,27 +1,31 @@
 <template>
-  <div class="k-login-form k-login-oauth-method-form">
+  <div class="">
     <p v-if="redirecting">{{ $t("thathoff.oauth.autoLoggingIn") }}</p>
-    <OAuth v-else :providers="providers" />
+    <k-button
+      v-else-if="provider"
+      :icon="provider.icon"
+      :link="provider.href"
+      :text="$t('thathoff.oauth.loginWith', {name: provider.name})"
+      class="thathoff-oauth-provider"
+      size="lg"
+      target="_self"
+      variant="filled"
+    />
   </div>
 </template>
 
 <script>
-import OAuth from "./OAuth.vue";
-
 export default {
-  components: {
-    OAuth
-  },
   props: {
-    providers: {
-      type: Array,
-      default: () => []
+    provider: {
+      type: Object,
+      default: null
     },
     error: {
       type: String,
       default: null
     },
-    autoRedirect: Boolean
+    redirect: Boolean
   },
   emits: ["error"],
   data() {
@@ -36,9 +40,9 @@ export default {
       return;
     }
 
-    if (this.autoRedirect && this.providers.length === 1) {
+    if (this.redirect && this.provider) {
       this.redirecting = true;
-      window.location.href = this.providers[0].href;
+      window.location.href = this.provider.href;
     }
   }
 };

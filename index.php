@@ -10,9 +10,8 @@ load([
 ], __DIR__);
 
 Kirby::plugin('thathoff/oauth', [
-    'authMethods' => [
-        'oauth' => Thathoff\Oauth\OauthMethod::class,
-    ],
+    // one login method per provider, e.g. `oauth-google`
+    'authMethods' => Thathoff\Oauth\OauthMethod::types(option('thathoff.oauth.providers')),
     'routes' => include(__DIR__ . '/plugin/routes.php'),
     'options' => include(__DIR__ . '/plugin/options.php'),
     'api' => include(__DIR__ . '/plugin/api.php'),
