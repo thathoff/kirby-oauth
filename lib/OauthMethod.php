@@ -104,17 +104,26 @@ class OauthMethod extends Method
 
     public function icon(): string
     {
+        if ($icon = $this->singleProvider()?->getIcon()) {
+            return $icon;
+        }
+
         $icon = $this->auth->kirby()->option('thathoff.oauth.icon');
 
         return is_string($icon) && $icon !== '' ? $icon : 'users';
     }
 
     /**
-     * Uses the `thathoff.oauth.label` option (string or
-     * translations array) if set, otherwise the default label
+     * Uses the provider name if only one provider is configured,
+     * otherwise the `thathoff.oauth.label` option (string or
+     * translations array) if set or the default label
      */
     public function label(): string
     {
+        if ($provider = $this->singleProvider()) {
+            return $provider->getName();
+        }
+
         $label = $this->auth->kirby()->option('thathoff.oauth.label');
 
         if (empty($label) === false && (is_string($label) || is_array($label))) {
@@ -127,5 +136,15 @@ class OauthMethod extends Method
     public function isEnabled(): bool
     {
         return (new ProvidersManager($this->auth->kirby()))->count() > 0;
+    }
+
+    /**
+     * Returns the provider if exactly one is configured
+     */
+    protected function singleProvider(): Provider|null
+    {
+        $providers = new ProvidersManager($this->auth->kirby());
+
+        return $providers->count() === 1 ? $providers->first() : null;
     }
 }
