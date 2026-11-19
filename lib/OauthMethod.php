@@ -24,6 +24,8 @@ class OauthMethod extends Method
 {
     public const SESSION_ERROR = 'thathoff.oauth.error';
 
+    protected ProvidersManager|null $providers = null;
+
     /**
      * OAuth logins are not submitted via the Panel login form
      * but go through the provider redirect flow instead
@@ -74,15 +76,14 @@ class OauthMethod extends Method
 
     public function form(): Component
     {
-        $kirby     = $this->auth->kirby();
-        $providers = (new ProvidersManager($kirby))->toPanel();
-        $error     = $kirby->session()->pull(static::SESSION_ERROR);
+        $kirby = $this->auth->kirby();
+        $error = $kirby->session()->pull(static::SESSION_ERROR);
 
         // redirect automatically when the method has just been selected
         // in the login method switcher or, if enabled, when there is
         // no other way to log in
         $autoRedirect =
-            count($providers) === 1 &&
+            $this->providers()->hasSingleProvider() === true &&
             empty($error) === true &&
             (
                 $this->isSelectedInSwitcher() ||
@@ -94,7 +95,7 @@ class OauthMethod extends Method
 
         return new Component(
             component:    'k-login-oauth-method-form',
-            providers:    $providers,
+            providers:    $this->providers()->toPanel(),
             error:        is_string($error) ? $error : null,
             autoRedirect: $autoRedirect,
         );
@@ -119,7 +120,7 @@ class OauthMethod extends Method
 
     public function icon(): string
     {
-        if ($icon = $this->singleProvider()?->getIcon()) {
+        if ($icon = $this->providers()->singleProvider()?->getIcon()) {
             return $icon;
         }
 
@@ -135,7 +136,7 @@ class OauthMethod extends Method
      */
     public function label(): string
     {
-        if ($provider = $this->singleProvider()) {
+        if ($provider = $this->providers()->singleProvider()) {
             // no `static::i18n()`: it falls back to the key itself
             // instead of Kirby's fallback language (English)
             return I18n::template('thathoff.oauth.loginWithProvider', [
@@ -173,16 +174,11 @@ class OauthMethod extends Method
 
     public function isEnabled(): bool
     {
-        return (new ProvidersManager($this->auth->kirby()))->count() > 0;
+        return $this->providers()->isNotEmpty();
     }
 
-    /**
-     * Returns the provider if exactly one is configured
-     */
-    protected function singleProvider(): Provider|null
+    protected function providers(): ProvidersManager
     {
-        $providers = new ProvidersManager($this->auth->kirby());
-
-        return $providers->count() === 1 ? $providers->first() : null;
+        return $this->providers ??= new ProvidersManager($this->auth->kirby());
     }
 }
