@@ -10,5 +10,7 @@ return [
     'allowEveryone' => null,
     'autoRedirect' => false,
     'skipEmailVerifiedCheck' => false,
-    'scope' => null
+    'scope' => null,
+    'label' => null,
+    'icon' => null
 ];
