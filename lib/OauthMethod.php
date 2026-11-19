@@ -70,12 +70,19 @@ class OauthMethod extends Method
         $providers = (new ProvidersManager($kirby))->toPanel();
         $error     = $kirby->session()->pull(static::SESSION_ERROR);
 
-        // only redirect automatically when there is no other way to log in
+        // redirect automatically when the method has just been selected
+        // in the login method switcher or, if enabled, when there is
+        // no other way to log in
         $autoRedirect =
-            $kirby->option('thathoff.oauth.autoRedirect', false) === true &&
-            count($this->auth->methods()->enabled()) === 1 &&
             count($providers) === 1 &&
-            empty($error) === true;
+            empty($error) === true &&
+            (
+                $this->isSelectedInSwitcher() ||
+                (
+                    $kirby->option('thathoff.oauth.autoRedirect', false) === true &&
+                    count($this->auth->methods()->enabled()) === 1
+                )
+            );
 
         return new Component(
             component:    'k-login-oauth-method-form',
@@ -133,6 +140,21 @@ class OauthMethod extends Method
         }
 
         return parent::label();
+    }
+
+    /**
+     * Checks whether the login form is requested by the Panel
+     * after a click in the login method switcher, as opposed to
+     * a full page load, the redirect after a logout or after
+     * the session expired while working in the Panel
+     */
+    protected function isSelectedInSwitcher(): bool
+    {
+        $panel = $this->auth->kirby()->panel();
+
+        return
+            $panel->isStateRequest() === true &&
+            str_starts_with($panel->referrer(), '/login/method/') === true;
     }
 
     public function isEnabled(): bool
