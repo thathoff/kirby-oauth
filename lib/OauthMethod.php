@@ -114,7 +114,7 @@ class OauthMethod extends Method
         return $this->auth->challenges()->hasAvailable($user, '2fa');
     }
 
-    public static function icon(): string
+    public function icon(): string
     {
         return static::singleProvider(App::instance())?->getIcon() ?? 'users';
     }
@@ -163,11 +163,8 @@ class OauthMethod extends Method
         return $provider instanceof Provider ? $provider : null;
     }
 
-    /**
-     * @param array<string, mixed> $options
-     */
-    public static function isEnabled(Auth $auth, array $options = []): bool
+    public function isEnabled(): bool
     {
-        return (new ProvidersManager($auth->kirby()))->count() > 0;
+        return (new ProvidersManager($this->auth->kirby()))->count() > 0;
     }
 }
