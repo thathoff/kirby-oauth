@@ -8,6 +8,7 @@ use Kirby\Auth\Status;
 use Kirby\Cms\User;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Panel\Ui\Component;
+use Kirby\Toolkit\I18n;
 use SensitiveParameter;
 
 /**
@@ -111,7 +112,28 @@ class OauthMethod extends Method
 
     public function icon(): string
     {
-        return 'users';
+        $icon = $this->auth->kirby()->option('thathoff.oauth.icon');
+
+        return is_string($icon) && $icon !== '' ? $icon : 'users';
+    }
+
+    /**
+     * Uses the `thathoff.oauth.label` option (string or
+     * translations array) if set, otherwise the default label
+     */
+    public function label(): string
+    {
+        $label = $this->auth->kirby()->option('thathoff.oauth.label');
+
+        if (empty($label) === false && (is_string($label) || is_array($label))) {
+            return static::i18n($label);
+        }
+
+        // not `parent::label()`, which falls back to the key itself
+        // for Panel languages without translations of the plugin
+        $label = I18n::translate('login.method.oauth.label');
+
+        return is_string($label) ? $label : 'OAuth';
     }
 
     public function isEnabled(): bool
