@@ -31,6 +31,22 @@ class ProvidersManager extends Collection
     }
 
     /**
+     * Checks whether exactly one provider is configured
+     */
+    public function hasSingleProvider(): bool
+    {
+        return $this->count() === 1;
+    }
+
+    /**
+     * Returns the provider if exactly one is configured
+     */
+    public function singleProvider(): ?Provider
+    {
+        return $this->hasSingleProvider() ? $this->first() : null;
+    }
+
+    /**
      * Returns the URL of the login route for a provider,
      * which is also used as the default redirect URL
      */
