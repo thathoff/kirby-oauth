@@ -122,14 +122,18 @@ class OauthMethod extends Method
     }
 
     /**
-     * Uses the provider name if only one provider is configured,
+     * Uses “Login with <provider>” if only one provider is configured,
      * otherwise the `thathoff.oauth.label` option (string or
      * translations array) if set or the default label
      */
     public function label(): string
     {
         if ($provider = $this->singleProvider()) {
-            return $provider->getName();
+            // no `static::i18n()`: it falls back to the key itself
+            // instead of Kirby's fallback language (English)
+            return I18n::template('thathoff.oauth.loginWithProvider', [
+                'provider' => $provider->getName()
+            ]);
         }
 
         $label = $this->auth->kirby()->option('thathoff.oauth.label');
