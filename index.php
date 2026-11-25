@@ -5,8 +5,10 @@
 load([
      'Thathoff\\Oauth\\Controller' => 'lib/Controller.php',
      'Thathoff\\Oauth\\OauthMethod' => 'lib/OauthMethod.php',
+     'Thathoff\\Oauth\\PendingLogin' => 'lib/PendingLogin.php',
      'Thathoff\\Oauth\\ProvidersManager' => 'lib/ProvidersManager.php',
      'Thathoff\\Oauth\\Provider' => 'lib/Provider.php',
+     'Thathoff\\Oauth\\SessionResourceOwner' => 'lib/SessionResourceOwner.php',
 ], __DIR__);
 
 Kirby::plugin('thathoff/oauth', [
@@ -16,5 +18,6 @@ Kirby::plugin('thathoff/oauth', [
     'routes' => include(__DIR__ . '/plugin/routes.php'),
     'options' => include(__DIR__ . '/plugin/options.php'),
     'api' => include(__DIR__ . '/plugin/api.php'),
+    'hooks' => include(__DIR__ . '/plugin/hooks.php'),
     'translations' => include(__DIR__ . '/plugin/translations.php'),
 ]);
