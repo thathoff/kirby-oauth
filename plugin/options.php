@@ -9,6 +9,7 @@ return [
     'onlyExistingUsers' => null,
     'allowEveryone' => null,
     'autoRedirect' => false,
+    'allowInstallation' => false,
     'skipEmailVerifiedCheck' => false,
     'scope' => null,
     'label' => null,

@@ -34,6 +34,15 @@ class Controller
             throw new NotFoundException(message: 'OAuth login is not enabled');
         }
 
+        // The first user (installation) must not be created if the Panel
+        // cannot be installed, otherwise anyone allowed to log in would
+        // become an admin of a fresh installation on a public server;
+        // checked before contacting the provider and before any hook
+        // (e.g. `thathoff.oauth.user-create:before`) can create a user
+        if ($this->kirby->users()->count() === 0 && !OauthMethod::isInstallable($this->kirby)) {
+            $this->error("The Panel cannot be installed");
+        }
+
         // reject blocked IPs before contacting the provider
         try {
             $auth->limits()->ensure();
@@ -145,6 +154,8 @@ class Controller
                     $this->error("Access denied for $email.");
                 }
 
+                $isFirstUser = $this->kirby->users()->count() === 0;
+
                 // Normalize values to be Case-Insensitive
                 $adminsNormalized = is_array($admins)
                     ? A::map($admins, fn($value) => Str::lower($value))
@@ -154,12 +165,12 @@ class Controller
 
                 // The first user (installation) always becomes an admin,
                 // otherwise nobody could manage the site afterwards
-                if ($this->kirby->users()->count() === 0) {
+                if ($isFirstUser) {
                     $role = 'admin';
                 }
 
                 // Create User
-                $kirbyUser = $this->kirby->impersonate('kirby', function () use ($name, $email, $role) {
+                $kirbyUser = $this->kirby->impersonate('kirby', function () use ($name, $email, $role, $isFirstUser) {
                     $userData = [
                         'name'      => $name,
                         'email'     => $email,
@@ -168,7 +179,7 @@ class Controller
 
                     // The first user requires a password to be set
                     // all other users can be created without a password
-                    if ($this->kirby->users()->count() === 0) {
+                    if ($isFirstUser) {
                         $userData['password'] = bin2hex(random_bytes(32));
                     }
 

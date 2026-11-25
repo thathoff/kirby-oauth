@@ -5,6 +5,7 @@ namespace Thathoff\Oauth;
 use Kirby\Auth\Auth;
 use Kirby\Auth\Method;
 use Kirby\Auth\Status;
+use Kirby\Cms\App;
 use Kirby\Cms\User;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Panel\Ui\Component;
@@ -175,6 +176,26 @@ class OauthMethod extends Method
     public function isEnabled(): bool
     {
         return $this->providers()->isNotEmpty();
+    }
+
+    /**
+     * Checks whether the first user may be created via OAuth;
+     * follows Kirby's `panel.install` option unless the
+     * `thathoff.oauth.allowInstallation` option is enabled
+     * (which never skips the required PHP extensions, just
+     * like Kirby's own check)
+     */
+    public static function isInstallable(App $kirby): bool
+    {
+        $system = $kirby->system();
+
+        if ($system->isInstallable() === true) {
+            return true;
+        }
+
+        return
+            $kirby->option('thathoff.oauth.allowInstallation', false) === true &&
+            in_array(false, $system->extensions(), true) === false;
     }
 
     protected function providers(): ProvidersManager
