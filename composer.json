@@ -31,7 +31,10 @@
     },
     "extra": {
         "installer-name": "oauth",
-        "kirby-cms-path": false
+        "kirby-cms-path": false,
+        "kirby": {
+            "compatible": "^6.0"
+        }
     },
     "config": {
         "allow-plugins": {
