@@ -104,13 +104,22 @@ class OauthMethod extends Method
 
     /**
      * Checks whether a second factor is required for this user
-     * (same logic as for Kirby's password method)
+     * (same logic as for Kirby's password method, but `2fa: false`
+     * disables the second factor for OAuth logins completely)
      */
     public function has2FA(User $user): bool
     {
+        $option = $this->options['2fa'] ?? null;
+
+        // disabled: the OAuth provider is responsible
+        // for a second factor (if any)
+        if ($option === false) {
+            return false;
+        }
+
         // enforced: every user needs a second factor,
         // even if they have not set one up yet
-        if (($this->options['2fa'] ?? null) === true) {
+        if ($option === true) {
             return true;
         }
 

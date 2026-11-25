@@ -61,6 +61,14 @@ OAuth logins respect Kirby’s second factors in the same way as the password me
 ],
 ```
 
+To skip Kirby’s second factor for OAuth logins completely, even for users who have set one up, set the option to `false`. Use this if your OAuth provider already enforces a second factor (e.g. Google Workspace or Microsoft Entra ID) or if your hooks need the full OAuth user (see “Use Hooks” below). The password method is not affected by this option.
+
+```php
+'auth' => [
+  'methods' => ['oauth' => ['2fa' => false]],
+],
+```
+
 ### Single Provider and Automatic Redirect
 
 If only one provider is configured, the `oauth` method is shown as “Login with &lt;provider name&gt;” with the provider’s icon in the login method switcher (instead of the `label` and `icon` options).
@@ -147,7 +155,7 @@ return [
 >
 > - The plugin no longer replaces the Panel login screen. Enable the `oauth` login method via `auth.methods` instead (see “Enable the Login Method” above).
 > - The `onlyOauth` option has been removed. Use `'auth' => ['methods' => ['oauth']]` instead.
-> - OAuth logins now trigger Kirby’s second factor if the user has set one up.
+> - OAuth logins now trigger Kirby’s second factor if the user has set one up. Set `'2fa' => false` for the `oauth` method to keep the previous behaviour.
 > - **On a public server the first user can only be created via OAuth if Kirby’s `panel.install` option or the new `allowInstallation` option is enabled.**
 > - The API endpoints `oauth/settings` and `oauth/oauthError` have been removed.
 > - **The options `domainWhitelist`, `emailWhitelist` and `adminWhitelist` have been renamed to `domainAllowlist`, `emailAllowlist` and `adminAllowlist`.** The old option names are no longer read, so rename them in your `config.php`.
