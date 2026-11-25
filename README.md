@@ -160,16 +160,7 @@ return [
 > - The API endpoints `oauth/settings` and `oauth/oauthError` have been removed.
 > - **The options `domainWhitelist`, `emailWhitelist` and `adminWhitelist` have been renamed to `domainAllowlist`, `emailAllowlist` and `adminAllowlist`.** The old option names are no longer read, so rename them in your `config.php`.
 > - **The default role for newly created users changed from `admin` to `editor`.** Make sure an `editor` role exists in `site/blueprints/users`, or set `'defaultRole' => 'admin'` explicitly to keep the old behaviour. Use the `adminAllowlist` to grant individual users admin access.
-
-> [!IMPORTANT]
-> **Breaking change for Azure Active Directory users:** Previous versions automatically mapped the `upn` claim to the email and treated it as verified. This implicit behaviour has been removed for security reasons (a malicious or misconfigured provider could otherwise claim arbitrary identities via `upn`). If you use Azure AD, you now have to configure this explicitly per provider:
->
-> ```php
-> 'emailField'    => 'upn',
-> 'emailVerified' => true,
-> ```
->
-> See the `emailField` / `emailVerified` options in the provider configuration below.
+> - Previous versions automatically mapped the `upn` claim to the email and treated it as verified. This implicit behaviour has been removed for security reasons (a malicious or misconfigured provider could otherwise claim arbitrary identities via `upn`). If you use Azure AD, you now have to configure this explicitly per provider: See the `emailField` / `emailVerified` options in the provider configuration below.
 
 ### Provider Options
 
