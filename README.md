@@ -256,3 +256,5 @@ Before and after the KirbyUser gets created or logged in a hook is triggered.
     }
 ]
 ```
+
+If a second factor is required, `thathoff.oauth.login:after` is triggered after the user has confirmed the challenge. In this case `$oauthUser` is a `Thathoff\Oauth\SessionResourceOwner`, which only provides `getId()` and `toArray()` (the data returned by the provider), since the provider-specific object cannot be kept in the session. Provider-specific methods (e.g. `getFirstName()`) and further requests to the provider are not possible in this case. If your `login:after` hook relies on them, either disable Kirby’s second factor for OAuth logins (`'2fa' => false`, see “Two-Factor Authentication” above) or use the `thathoff.oauth.login:before` hook, which always receives the full OAuth user but is triggered before the second factor has been confirmed. Errors thrown by the `login:after` hook after a second factor do not abort the login (the user is already logged in at that point), they are only written to the PHP error log.

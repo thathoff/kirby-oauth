@@ -196,11 +196,17 @@ class Controller
 
         $this->kirby->trigger('thathoff.oauth.login:before', ['oauthUser' => $oauthUser, 'user' => $kirbyUser]);
 
+        // drop leftovers of a previously abandoned challenge
+        PendingLogin::forget($this->kirby->session());
+
         $method = $this->kirby->auth()->methods()->get('oauth');
         $result = $method instanceof OauthMethod ? $method->complete($kirbyUser) : null;
 
-        // a second factor is required: continue with Kirby's challenge form
+        // a second factor is required: continue with Kirby's challenge form;
+        // `thathoff.oauth.login:after` is triggered once the challenge
+        // has been confirmed (see the `user.login:after` hook)
         if ($result instanceof Status) {
+            PendingLogin::remember($this->kirby->session(), $kirbyUser, $oauthUser);
             go($this->kirby->url('panel') . '/login/challenge/' . $result->challenge());
         }
 
