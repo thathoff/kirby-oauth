@@ -121,6 +121,11 @@ return [
     // provider is configured. For details see “Single Provider and Automatic Redirect” below.
     'autoRedirect' => false,
 
+    // Allow creating the first user (installation) via OAuth even if Kirby’s installer is disabled
+    // (`panel.install`), e.g. for fresh review apps on a public server without any users.
+    // DANGEROUS: Every user allowed to log in can become the admin of a fresh installation!
+    'allowInstallation' => false,
+
     // Set this to 'true' to disable checking for the 'email_verified' field in the OAuth response. While some providers do not send this information, it is recommended that you keep this option enabled if your provider supports it.
     'skipEmailVerifiedCheck' => false,
 
@@ -143,6 +148,7 @@ return [
 > - The plugin no longer replaces the Panel login screen. Enable the `oauth` login method via `auth.methods` instead (see “Enable the Login Method” above).
 > - The `onlyOauth` option has been removed. Use `'auth' => ['methods' => ['oauth']]` instead.
 > - OAuth logins now trigger Kirby’s second factor if the user has set one up.
+> - **On a public server the first user can only be created via OAuth if Kirby’s `panel.install` option or the new `allowInstallation` option is enabled.**
 > - The API endpoints `oauth/settings` and `oauth/oauthError` have been removed.
 > - **The options `domainWhitelist`, `emailWhitelist` and `adminWhitelist` have been renamed to `domainAllowlist`, `emailAllowlist` and `adminAllowlist`.** The old option names are no longer read, so rename them in your `config.php`.
 > - **The default role for newly created users changed from `admin` to `editor`.** Make sure an `editor` role exists in `site/blueprints/users`, or set `'defaultRole' => 'admin'` explicitly to keep the old behaviour. Use the `adminAllowlist` to grant individual users admin access.
@@ -212,7 +218,7 @@ By default only allowlisted users are allowed to login into the Kirby panel.
 
 **Allow Everyone:** By setting `allowEveryone` to `true` all authenticated accounts are able to login. *Please use this option with care!* Make sure the default role (`defaultRole`, default `editor`) does not grant more permissions than intended.
 
-**Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `editor`, so make sure an `editor` role exists in `site/blueprints/users` or set `defaultRole` to an existing role. Users on the `adminAllowlist` get the `admin` role instead. The very first user (created during the installation) always becomes an admin. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually allow users by changing the role in the Kirby panel.
+**Default Role:** Newly created users get the role defined with `defaultRole` when they first login. The default is `editor`, so make sure an `editor` role exists in `site/blueprints/users` or set `defaultRole` to an existing role. Users on the `adminAllowlist` get the `admin` role instead. The very first user (created during the installation) always becomes an admin. Just like Kirby’s own installer, this is only possible locally or when `panel.install` is enabled, unless you set `allowInstallation` to `true`. Please note that when the user has ben created already the role will not be updated. You can set this role to `nobody` if you want to manually allow users by changing the role in the Kirby panel.
 
 **Only Existing User:** By setting `onlyExistingUsers` to true only created uses are able to login with an OAuth provider, no new users are created.
 
